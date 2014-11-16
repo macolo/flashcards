@@ -100,6 +100,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'level': 'DEBUG', # message level to be written to console
         },
+        'null': {
+            'level':'DEBUG',
+            'class':'django.utils.log.NullHandler',
+        },
     },
     'loggers': {
         '': {
@@ -111,12 +115,19 @@ LOGGING = {
             'propagate': False, # this tells logger to send logging message
                                 # to its parent (will send if set to True)
         },
-        'django.db': {
-            # django also has database level logging
-        },
+        # http://stackoverflow.com/questions/7768027/turn-off-sql-logging-while-keeping-settings-debug
+        'django.db.backends': {
+            'handlers': ['null'],  # Quiet by default!
+            'propagate': False,
+            'level':'DEBUG',
+            },
     },
 }
 
 LOGIN_REDIRECT_URL = "/"
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TEMPLATE_CONTEXT': True,
+}

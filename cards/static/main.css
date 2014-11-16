@@ -1,0 +1,74 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+
+}
+
+#card_list {
+    perspective: 1000px;
+}
+
+.card {
+    font-size:1.9em;
+    padding:1em;
+    float:left;
+
+}
+
+.card .card_answer {
+    font-style:italic;
+}
+
+.card_answer, .card_question {
+    border: grey solid 1px;
+    background-color: #F5F5F5;
+    text-align: center;
+    width: 100%;
+    box-shadow: 10px 10px 5px #888888;
+}
+
+.valign {
+    vertical-align:middle;
+    display:table-cell;
+}
+
+/* entire container, keeps perspective */
+
+
+.flip-container, .front, .back {
+    height:7em;
+    width:10em;
+    display:table;
+}
+
+/* flip speed goes here */
+.flipper {
+	transition: 1s;
+	transform-style: preserve-3d;
+	position: relative;
+}
+
+/* hide back of pane during swap */
+.front, .back {
+	backface-visibility: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+/* front pane, placed above back */
+.front {
+	z-index: 2;
+	/* for firefox 31 */
+	transform: rotateY(0deg);
+}
+
+/* back, initially hidden pane */
+.back {
+	transform: rotateY(180deg);
+}
+
+
+/* on click transformation */
+.flip-container.flip .flipper {
+	transform: rotateY(180deg);
+}
