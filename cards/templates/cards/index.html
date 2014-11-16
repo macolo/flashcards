@@ -2,12 +2,16 @@
 
 {% block title %}Cardlist Index{% endblock %}
 
+{% block header %}
+<a href="{% url 'django.contrib.auth.views.logout_then_login' %}">Log out</a>
+{% endblock %}
+
 {% block content %}
 
 {% if cardlist_list %}
     <ul>
     {% for cardlist in cardlist_list %}
-        <li><a href="/cardlists/{{ cardlist.id }}/">{{ cardlist.cardlist_name }}</a></li>
+        <li><a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
     {% endfor %}
     </ul>
 {% else %}

@@ -18,3 +18,10 @@ def index(request):
     cardlist_list = CardList.objects.order_by('-created_date')
     context = {'cardlist_list': cardlist_list,}
     return render(request, 'cards/index.html', context)
+
+
+def cardlist(request):
+    pass
+
+def card(request):
+    pass
