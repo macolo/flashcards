@@ -30,6 +30,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'usermgmt', # before django.contrib.admin because of
+    # http://stackoverflow.com/questions/447512/how-do-i-override-djangos-administrative-change-password-page
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'debug_toolbar',
     'cards',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -113,3 +116,7 @@ LOGGING = {
         },
     },
 }
+
+LOGIN_REDIRECT_URL = "/"
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

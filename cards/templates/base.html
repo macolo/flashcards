@@ -7,7 +7,9 @@
 <body>
 <div id="header">{% block header %}{% endblock %}</div>
 <div id="menu">Menu</div>
-<div id="content">{% block content %}{% endblock %}</div>
+<div id="content"><div id="contenttitle">{% block content_title %}{% endblock %}</div>
+
+{% block content %}{% endblock %}</div>
 </body>
 
 </html>
