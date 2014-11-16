@@ -8,4 +8,5 @@ urlpatterns = patterns('',
 
     url(r'^cardlists/', include('cards.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 )
