@@ -1,0 +1,15 @@
+{% extends "cards/base.html" %}
+
+{% block title %}Cardlist Index{% endblock %}
+
+{% block content %}
+{% if cardlist_list %}
+    <ul>
+    {% for cardlist in cardlist_list %}
+        <li><a href="/cardlists/{{ cardlist.id }}/">{{ cardlist.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>You haven't got any cardlists.</p>
+{% endif %}
+{% endblock %}
