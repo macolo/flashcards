@@ -55,5 +55,8 @@ docs/_build/
 # pyCharm
 .idea/
 
+# Static
+static/
+
 # Other
 credentials.json
