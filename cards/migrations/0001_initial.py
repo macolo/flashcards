@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('cardlist_name', models.CharField(max_length=200)),
                 ('created_date', models.DateTimeField(verbose_name=b'date published')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
             },
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='card',
             name='cardlist',
-            field=models.ForeignKey(to='cards.CardList'),
+            field=models.ManyToManyField(to='cards.CardList'),
             preserve_default=True,
         ),
     ]
