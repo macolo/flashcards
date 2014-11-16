@@ -89,7 +89,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
+# where static files will be available over http
 STATIC_URL = '/static/'
+
+# where static files will be copied to
+STATIC_ROOT = '/var/www/flashcards/static/'
 
 LOGGING = {
     'disable_existing_loggers': False,
