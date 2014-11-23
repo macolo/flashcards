@@ -8,14 +8,15 @@
 <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Kotta+One' rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}" />
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 
 <body>
 <div id="header">{% block header %}{% endblock %}</div>
-<div id="menu">Menu</div>
-<div id="content"><div id="contenttitle">{% block content_title %}{% endblock %}</div>
-
-{% block content %}{% endblock %}</div>
+<div id="content">
+    <div id="contenttitle">{% block content_title %}{% endblock %}</div>
+    <div id="error_msg">{% block error_msg %}{% endblock %}</div>
+    {% block content %}{% endblock %}</div>
 </body>
 
 </html>
