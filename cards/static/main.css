@@ -4,14 +4,16 @@ body {
 }
 
 #card_list {
-    perspective: 1000px;
+
 }
 
 .card {
     font-size:1.9em;
     padding:1em;
     float:left;
-
+    perspective: 1000px;
+        height:250px;
+    width:350px;
 }
 
 .card .card_answer {
@@ -24,7 +26,34 @@ body {
     text-align: center;
     width: 100%;
     box-shadow: 10px 10px 5px #888888;
+    overflow:hidden;
 }
+
+.fc-next, .fc-submit {
+    display:block;
+    position:absolute;
+    bottom:5px;
+    right:5px;
+    font-size:14px !important;
+}
+
+#card_list textarea {
+    background-color: transparent;
+    border:none;
+    outline:none;
+    font-size:100%;
+    font-family:inherit;
+    text-align:inherit;
+    display:inline-block;
+    vertical-align:middle;
+    width:95%;
+    max-height:100%;
+    resize:vertical;
+    outline:dotted grey 1px;
+    /* text-decoration: underline; */
+}
+
+
 
 .valign {
     vertical-align:middle;
@@ -35,8 +64,8 @@ body {
 
 
 .flip-container, .front, .back {
-    height:7em;
-    width:10em;
+    height:250px;
+    width:350px;
     display:table;
 }
 
@@ -69,6 +98,21 @@ body {
 
 
 /* on click transformation */
-.flip-container.flip .flipper {
+.flip-container.flip .flipper ,
+.newcard.flip .flipper {
 	transform: rotateY(180deg);
+}
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+button {
+    background:none;
+    border:none;
 }

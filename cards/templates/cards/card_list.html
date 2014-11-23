@@ -3,32 +3,73 @@
 <title>{% block title %}{{ cardlist_name }}{% endblock %}</title>
 
 {% block header %}
-<a href="{% url 'logout' %}">Log out</a>
+<a href="{% url 'logout' %}">Log out</a> &nbsp;&nbsp;|&nbsp;&nbsp; <a href="{% url 'cards:index' %}">Back to Cardstack Overview</a>
 {% endblock %}
 
 {% block content_title %}<h1>{{ cardlist_name }}</h1>{% endblock %}
 
-{% block content %}
+{% block error_msg %}{% if error_msg %}<div id="error_msg">{{ error_msg }}</div>{% endif %}{% endblock %}
 
+{% block content %}
+<div id="card_list">
 {% if card_list %}
-    <script>
-    $( document ).ready(function() {
-        jQuery('.flip-container').on('click', function () {
-            jQuery(this).toggleClass('flip');
-        })
-    });
-    </script>
-    <div id="card_list">
+
+
     {% for card in card_list %}
-        <div class="card flip-container">
+        <div class="card flip-container fliponclick noselect">
             <div class="card-helper flipper">
                     <div class="card_question front"><div class="valign">{{ card.card_question }}</div></div>
                     <div class="card_answer back"><div class="valign">{{ card.card_answer }}</div></div>
             </div>
         </div>
     {% endfor %}
-    </div>
+
 {% else %}
     <p>This Carddeck doesn't contain any cards.</p>
 {% endif %}
+
+
+
+    <div class="card newcard noselect">
+        <div class="card-helper flipper">
+            <form action="{% url 'cards:addcard' cardlist_id %}" method="post">
+                {% csrf_token %}
+                <div class="card_question front">
+                    <div class="valign">
+                        <textarea rows=1 name="card_question" value="" >question</textarea>
+                        <i class="fc-next fa fa-share"></i>
+                    </div>
+                </div>
+                <div class="card_answer back">
+                    <div class="valign">
+                        <textarea rows=1 name="card_answer">answer</textarea>
+                        <button class="fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $( document ).ready(function() {
+            jQuery('.fliponclick').on('click touchstart', function(e) {
+                var target = jQuery(e.target).prop('tagName');
+                if ( target == 'TEXTAREA') {
+                    jQuery(e.target).val("");
+                } else {
+                    jQuery(this).toggleClass('flip');
+                }
+            });
+
+            jQuery('.fc-next').on('click touchstart',  function(e) {
+                jQuery(this).parents('.newcard').toggleClass('flip');
+            });
+
+            $('textarea').on('keyup', function() {
+                $(this).css('height', 'auto').height($(this).prop('scrollHeight'));
+            });
+        });
+
+    </script>
 {% endblock %}

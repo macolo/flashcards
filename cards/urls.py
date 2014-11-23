@@ -6,5 +6,6 @@ from cards import views
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^(?P<cardlist_id>[0-9]+)/$', views.cardlist, name='cardlist'),
-    url(r'^(?P<cardlist_id>[0-9]+)/(?P<card_id>[0-9]+)$', views.card, name='card'),
+    url(r'^(?P<cardlist_id>[0-9]+)/(?P<card_id>[0-9]+)/$', views.card, name='card'),
+    url(r'^(?P<cardlist_id>[0-9]+)/addcard$', views.add_cart_to_cardlist, name='addcard'),
 ]

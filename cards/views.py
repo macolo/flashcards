@@ -12,7 +12,10 @@ logger = logging.getLogger(__name__)
 
 # Create your views here.
 
+from django.shortcuts import redirect
+
 from cards.models import CardList, Card
+
 
 @login_required
 def index(request):
@@ -48,8 +51,28 @@ def cardlist(request, cardlist_id):
 
     cards = Card.objects.filter(cardlist__exact=cardlist_id)
     logger.debug(cards.all)
-    context = {'card_list' : cards, 'cardlist_name': cardlist_name}
+    context = {'card_list' : cards, 'cardlist_name': cardlist_name, 'cardlist_id': cardlist_id}
     return render(request, 'cards/card_list.html', context)
+
+def add_cart_to_cardlist(request, cardlist_id):
+    # Here we will store the new card
+    try:
+        question = request.POST['card_question']
+        answer = request.POST['card_answer']
+    except(StandardError):
+
+        error_msg = 'Post request for card creation is lacking mandatory values.'
+        logger.error(error_msg)
+        context = {'error_msg' : error_msg}
+        return render(request, 'cards/card_list.html', context)
+
+    current_cardlist = CardList.objects.get(pk=cardlist_id)
+    newcard = Card.objects.create(card_question=question,card_answer=answer)
+    newcard.cardlist.add(current_cardlist)
+    newcard.save()
+
+    # Then redirect to the active cardlist
+    return redirect('cards:cardlist',cardlist_id)
 
 def card(request):
     pass
