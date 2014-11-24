@@ -20,12 +20,6 @@ from cards.models import CardList, Card
 @login_required
 def index(request):
 
-    # Find out about the current user and his groups
-    current_user_groups = request.user.groups.all()
-    current_user_id = request.user.id
-
-    current_user_group_ids = current_user_groups.values_list('id', flat=True)
-
     if request.user.is_superuser or request.user.is_staff:
          cardlist_list = CardList.objects.all()
     else:
@@ -33,9 +27,9 @@ def index(request):
         # OR which owner match current_user_id
         # http://stackoverflow.com/questions/7740356/logical-or-of-django-many-to-many-queries-returns-duplicate-results
         cardlist_list = CardList.objects.filter(
-            Q(groups__in=list(current_user_group_ids)) |
-            Q(users__exact=current_user_id) |
-            Q(owner__exact=current_user_id)
+            Q(groups__in=list(request.user.groups.all())) |
+            Q(users__exact=request.user.id) |
+            Q(owner__exact=request.user.id)
         ).distinct().order_by('-created_date')
 
     context = {'cardlist_list': cardlist_list,}
@@ -45,13 +39,37 @@ def index(request):
 def cardlist(request, cardlist_id):
     cardlist = CardList.objects.get(id=cardlist_id)
     cardlist_name = cardlist.cardlist_name
-    if not (request.user.is_superuser or request.user.is_staff):
-        if cardlist.owner != request.user.id:
+
+
+    # Current users permission ids
+    cardlist.groups.values_list('id', flat=True)
+
+    has_user_access = CardList.objects.filter(users__exact=request.user.id).filter(id=cardlist_id)
+    has_group_access = CardList.objects.filter(groups__in=list(request.user.groups.all())).filter(id=cardlist_id)
+
+    # Check access permissions to this cardlist
+    if not (request.user.is_superuser or
+        request.user.is_staff or
+        cardlist.owner == request.user.id or
+        has_user_access or
+        has_group_access):
             return HttpResponseForbidden()
 
     cards = Card.objects.filter(cardlist__exact=cardlist_id)
     logger.debug(cards.all)
-    context = {'card_list' : cards, 'cardlist_name': cardlist_name, 'cardlist_id': cardlist_id}
+
+    # Check add permissions
+
+    if request.user.has_perm('cards.add_card'):
+        show_newcard = True
+    else:
+        show_newcard = False
+
+    context = {'card_list' : cards,
+               'cardlist_name': cardlist_name,
+               'cardlist_id': cardlist_id,
+               'show_newcard': show_newcard
+    }
     return render(request, 'cards/card_list.html', context)
 
 def add_cart_to_cardlist(request, cardlist_id):
