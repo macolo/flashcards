@@ -28,7 +28,7 @@
     <p>This Carddeck doesn't contain any cards.</p>
 {% endif %}
 
-
+{% if show_newcard %}
 
     <div class="card newcard noselect">
         <div class="card-helper flipper">
@@ -49,6 +49,8 @@
             </form>
         </div>
     </div>
+{% endif %}
+
 </div>
 
     <script>
