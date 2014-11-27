@@ -12,6 +12,7 @@ body {
     padding:1em;
     float:left;
     perspective: 1000px;
+    -webkit-perspective: 1000px;
         height:250px;
     width:350px;
 }
@@ -72,13 +73,16 @@ body {
 /* flip speed goes here */
 .flipper {
 	transition: 1s;
+    -webkit-transition: 1s;
 	transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
 	position: relative;
 }
 
 /* hide back of pane during swap */
 .front, .back {
 	backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -89,18 +93,21 @@ body {
 	z-index: 2;
 	/* for firefox 31 */
 	transform: rotateY(0deg);
+    -webkit-transform: rotateY(0deg);
 }
 
 /* back, initially hidden pane */
 .back {
 	transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
 }
 
 
 /* on click transformation */
-.flip-container.flip .flipper ,
+.flip-container.flip .flipper,
 .newcard.flip .flipper {
 	transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
 }
 
 .noselect {
