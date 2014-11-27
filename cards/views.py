@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 from django.shortcuts import redirect
 
-from cards.models import CardList, Card
+from cards.models import CardList, Card, CardListGroup, CardListUser
 
 
 @login_required
@@ -40,27 +40,41 @@ def cardlist(request, cardlist_id):
     cardlist = CardList.objects.get(id=cardlist_id)
     cardlist_name = cardlist.cardlist_name
 
+    user_access = CardListUser.objects.filter(cardlist__pk=cardlist_id, users__pk=request.user.id).distinct()
+    group_access = CardListGroup.objects.filter(cardlist__pk=cardlist_id, groups__in=list(request.user.groups.all())).distinct()
 
-    # Current users permission ids
-    cardlist.groups.values_list('id', flat=True)
+    if cardlist.owner.pk == request.user.id:
+        is_owner = True
+    else:
+        is_owner = False
 
-    has_user_access = CardList.objects.filter(users__exact=request.user.id).filter(id=cardlist_id)
-    has_group_access = CardList.objects.filter(groups__in=list(request.user.groups.all())).filter(id=cardlist_id)
-
-    # Check access permissions to this cardlist
+    # Check access permissions to this stack, if either one of the conditions is true
+    # allow access.
     if not (request.user.is_superuser or
         request.user.is_staff or
-        cardlist.owner == request.user.id or
-        has_user_access or
-        has_group_access):
+        is_owner or
+        user_access or
+        group_access):
             return HttpResponseForbidden()
 
-    cards = Card.objects.filter(cardlist__exact=cardlist_id)
+    cards = cardlist.cards.all()
     logger.debug(cards.all)
 
-    # Check add permissions
 
-    if request.user.has_perm('cards.add_card'):
+    # Check permissions for the card deck
+    # The higher permissions trump the lower
+    # a group the user is a member of can have 'r' and the user itself can have 'ru'
+    # owner or admin always wins.
+
+    permissions = get_access_levels_from_cardlist_queryset(user_access)
+    permissions += get_access_levels_from_cardlist_queryset(group_access)
+
+
+
+    highest_perm = get_trumping_access_level(permissions)
+
+
+    if is_owner or highest_perm=='crud' or highest_perm=='cr':
         show_newcard = True
     else:
         show_newcard = False
@@ -71,6 +85,28 @@ def cardlist(request, cardlist_id):
                'show_newcard': show_newcard
     }
     return render(request, 'cards/card_list.html', context)
+
+def get_access_levels_from_cardlist_queryset(queryset):
+    permissions = []
+    for query in queryset:
+        permissions.append(query.mode)
+    return permissions
+
+def get_trumping_access_level(perms):
+    """
+    Iterates over a list and finds the highest access level
+    :return: highest access level as a string (either 'r', 'rc' or 'crud')
+    """
+    highest_perm_so_far = 'r'
+    for perm in perms:
+        # if it is the highest permission, we can return right away
+        if perm == 'crud':
+            return perm
+        # if its the perm in between, there might later on still be a higher permission
+        elif perm == 'cr':
+            highest_perm_so_far = perm
+    # we can now safely return the highest perm. At this point it is either 'cr' or it stayed 'r'
+    return highest_perm_so_far
 
 def add_cart_to_cardlist(request, cardlist_id):
     # Here we will store the new card
@@ -86,7 +122,7 @@ def add_cart_to_cardlist(request, cardlist_id):
 
     current_cardlist = CardList.objects.get(pk=cardlist_id)
     newcard = Card.objects.create(card_question=question,card_answer=answer)
-    newcard.cardlist.add(current_cardlist)
+    current_cardlist.cards.add(newcard)
     newcard.save()
 
     # Then redirect to the active cardlist
