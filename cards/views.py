@@ -20,7 +20,7 @@ from cards.models import CardList, Card, CardListGroup, CardListUser
 @login_required
 def cardlist_index(request):
 
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_superuser:
          cardlist_list = CardList.objects.all()
     else:
         # find all cardlists which groups match current_user_group_ids OR which users match current_user_id
