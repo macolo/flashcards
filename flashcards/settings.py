@@ -20,11 +20,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'do22=9b2)$@zeu99-e7*=0z@!2+sray3o18$w40f9&pe9yu723'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['flashcards.typodrive.com', 'www.mercedes-espanol.ch']
 
 
 # Application definition
@@ -89,7 +89,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
+# where static files will be available over http
 STATIC_URL = '/static/'
+
+# where static files will be copied to
+STATIC_ROOT = '/var/www/flashcards/static/'
 
 LOGGING = {
     'disable_existing_loggers': False,
@@ -104,13 +108,20 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
+        'logfile': {
+            'level':'WARNING',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR + "/logfile.log",
+            'maxBytes': 50000,
+            'backupCount': 2,
+        },
     },
     'loggers': {
         '': {
             # this sets root level logger to log debug and higher level
             # logs to console. All other loggers inherit settings from
             # root level logger.
-            'handlers': ['console'],
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': False, # this tells logger to send logging message
                                 # to its parent (will send if set to True)
