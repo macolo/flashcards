@@ -109,7 +109,7 @@ LOGGING = {
             'class':'django.utils.log.NullHandler',
         },
         'logfile': {
-            'level':'DEBUG',
+            'level':'WARNING',
             'class':'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + "/logfile.log",
             'maxBytes': 50000,
