@@ -4,7 +4,7 @@ from django.views.generic import RedirectView
 
 urlpatterns = patterns('',
     # this one redirects to the cards app
-    url(r'^$', RedirectView.as_view(pattern_name='cards:index')),
+    url(r'^$', RedirectView.as_view(pattern_name='cards:cardlist_index')),
     url(r'^cardlists/', include('cards.urls', namespace='cards')),
     url(r'^admin/', include(admin.site.urls)),
     # Can' use these in the usermgmt app because of

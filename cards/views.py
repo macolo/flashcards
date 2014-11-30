@@ -18,7 +18,7 @@ from cards.models import CardList, Card, CardListGroup, CardListUser
 
 
 @login_required
-def index(request):
+def cardlist_index(request):
 
     if request.user.is_superuser or request.user.is_staff:
          cardlist_list = CardList.objects.all()
@@ -35,13 +35,34 @@ def index(request):
     context = {'cardlist_list': cardlist_list,}
     return render(request, 'cards/cardlist_list.html', context)
 
+@login_required
+def new_cardlist(request):
+    try:
+        cardlist_name = request.POST['cardlist_name']
+    except(StandardError):
+        error_msg = 'Post request for card creation is lacking mandatory values.'
+        logger.error(error_msg)
+        context = {'error_msg' : error_msg}
+        return render(request, 'cards/card_list.html', context)
 
+    # write the new (empty) card list to the database
+    new_cardlist = CardList(cardlist_name=cardlist_name, owner_id=request.user.id)
+    new_cardlist.save()
+
+    # Then redirect to the active cardlist
+    return redirect('cards:cardlist_index')
+
+
+@login_required
 def cardlist(request, cardlist_id):
     cardlist = CardList.objects.get(id=cardlist_id)
     cardlist_name = cardlist.cardlist_name
 
-    user_access = CardListUser.objects.filter(cardlist__pk=cardlist_id, users__pk=request.user.id).distinct()
-    group_access = CardListGroup.objects.filter(cardlist__pk=cardlist_id, groups__in=list(request.user.groups.all())).distinct()
+    # Check user & group permissions for the card deck
+    # The higher permissions trump the lower
+    # a group the user is a member of can have 'r' and the user itself can have 'ru'
+    # owner or admin always wins.
+    user_and_group_access = get_user_and_group_access_level(request, cardlist_id)
 
     if cardlist.owner.pk == request.user.id:
         is_owner = True
@@ -53,68 +74,70 @@ def cardlist(request, cardlist_id):
     if not (request.user.is_superuser or
         request.user.is_staff or
         is_owner or
-        user_access or
-        group_access):
+        user_and_group_access):
             return HttpResponseForbidden()
 
     cards = cardlist.cards.all()
     logger.debug(cards.all)
 
 
-    # Check permissions for the card deck
-    # The higher permissions trump the lower
-    # a group the user is a member of can have 'r' and the user itself can have 'ru'
-    # owner or admin always wins.
+    # Flag for the template that decides whether UI for add new card should be visible
+    show_newcard = False
+    show_cardlist_crud = False
 
-    permissions = get_access_levels_from_cardlist_queryset(user_access)
-    permissions += get_access_levels_from_cardlist_queryset(group_access)
-
-
-
-    highest_perm = get_trumping_access_level(permissions)
-
-
-    if is_owner or highest_perm=='crud' or highest_perm=='cr':
+    if is_owner or request.user.is_superuser or request.user.is_staff:
         show_newcard = True
-    else:
-        show_newcard = False
+        show_cardlist_crud = True
+
+    if user_and_group_access:
+        if user_and_group_access=='crud' or user_and_group_access=='cr':
+            show_newcard = True
+            show_cardlist_crud = True
 
     context = {'card_list' : cards,
                'cardlist_name': cardlist_name,
                'cardlist_id': cardlist_id,
-               'show_newcard': show_newcard
+               'show_newcard': show_newcard,
+               'show_cardlist_crud': show_cardlist_crud,
     }
     return render(request, 'cards/card_list.html', context)
 
-def get_access_levels_from_cardlist_queryset(queryset):
-    permissions = []
-    for query in queryset:
-        permissions.append(query.mode)
-    return permissions
 
-def get_trumping_access_level(perms):
+
+@login_required
+def get_user_and_group_access_level(request, cardlist_id):
     """
-    Iterates over a list and finds the highest access level
-    :return: highest access level as a string (either 'r', 'rc' or 'crud')
+
+    :param cardlist_id: the id of the current cardlist
+    :return: the highest access level the current user has access to either to his group or user access
     """
-    highest_perm_so_far = 'r'
-    for perm in perms:
+    modes = []
+    for po in CardListUser.objects.filter(cardlist__pk=cardlist_id, users__pk=request.user.id).distinct():
+        modes.append(po.mode)
+
+    for po in CardListGroup.objects.filter(cardlist__pk=cardlist_id, groups__in=list(request.user.groups.all())).distinct():
+        modes.append(po.mode)
+
+    # Iterates over a list and finds the highest access level
+    trumping_access_level = 'r'
+    for mode in modes:
         # if it is the highest permission, we can return right away
-        if perm == 'crud':
-            return perm
+        if mode == 'crud':
+            return trumping_access_level
         # if its the perm in between, there might later on still be a higher permission
-        elif perm == 'cr':
-            highest_perm_so_far = perm
-    # we can now safely return the highest perm. At this point it is either 'cr' or it stayed 'r'
-    return highest_perm_so_far
+        elif mode == 'cr':
+            trumping_access_level = mode
+    # we can now safely use the highest perm. At this point it is either 'cr' or it stayed 'r'
+    return trumping_access_level
 
-def add_cart_to_cardlist(request, cardlist_id):
+
+@login_required
+def add_card_to_cardlist(request, cardlist_id):
     # Here we will store the new card
     try:
         question = request.POST['card_question']
         answer = request.POST['card_answer']
     except(StandardError):
-
         error_msg = 'Post request for card creation is lacking mandatory values.'
         logger.error(error_msg)
         context = {'error_msg' : error_msg}
@@ -126,7 +149,17 @@ def add_cart_to_cardlist(request, cardlist_id):
     newcard.save()
 
     # Then redirect to the active cardlist
-    return redirect('cards:cardlist',cardlist_id)
+    return redirect('cards:cardlist', cardlist_id)
 
+@login_required
+def delete_cardlist(request, cardlist_id):
+    cardlist = CardList.objects.filter(id=cardlist_id)
+    cardlist.delete()
+
+     # Then redirect to the active cardlist
+    return redirect('cards:cardlist_index')
+
+
+@login_required
 def card(request):
     pass

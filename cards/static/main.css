@@ -3,8 +3,29 @@ body {
 
 }
 
-#card_list {
+.header-element,
+.header-element-separator {
+    float:left;
+}
 
+#header {
+    overflow:hidden;
+}
+
+#header input {
+    border:0;
+    border-bottom: 1px dotted grey;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    font-size:100%;
+    font-family:inherit;
+    text-align:inherit;
+    outline: none;
+}
+
+#card_list {
+    /* subsequent divs should start below */
+    overflow:hidden;
 }
 
 .card {
@@ -41,6 +62,7 @@ body {
 #card_list textarea {
     background-color: transparent;
     border:none;
+    border-bottom: 1px dotted grey;
     outline:none;
     font-size:100%;
     font-family:inherit;
@@ -50,7 +72,7 @@ body {
     width:95%;
     max-height:100%;
     resize:vertical;
-    outline:dotted grey 1px;
+    outline: none;
     /* text-decoration: underline; */
 }
 

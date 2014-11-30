@@ -3,7 +3,10 @@
 <title>{% block title %}{{ cardlist_name }}{% endblock %}</title>
 
 {% block header %}
-<a href="{% url 'logout' %}">Log out</a> &nbsp;&nbsp;|&nbsp;&nbsp; <a href="{% url 'cards:index' %}">Back to Cardstack Overview</a>
+     <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
+    <div class="header-element">
+        <a href="{% url 'cards:cardlist_index' %}">Back to Cardstack Overview</a>
+    </div>
 {% endblock %}
 
 {% block content_title %}<h1>{{ cardlist_name }}</h1>{% endblock %}
@@ -11,55 +14,58 @@
 {% block error_msg %}{% if error_msg %}<div id="error_msg">{{ error_msg }}</div>{% endif %}{% endblock %}
 
 {% block content %}
-<div id="card_list">
-{% if card_list %}
+    <div id="card_list">
+        {% if card_list %}
 
 
-    {% for card in card_list %}
-        <div class="card flip-container fliponclick noselect">
-            <div class="card-helper flipper">
-                    <div class="card_question front"><div class="valign">{{ card.card_question }}</div></div>
-                    <div class="card_answer back"><div class="valign">{{ card.card_answer }}</div></div>
+            {% for card in card_list %}
+                <div class="card flip-container fliponclick noselect">
+                    <div class="card-helper flipper">
+                        <div class="card_question front"><div class="valign">{{ card.card_question }}</div></div>
+                        <div class="card_answer back"><div class="valign">{{ card.card_answer }}</div></div>
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% else %}
+            <p>This Carddeck doesn't contain any cards.</p>
+        {% endif %}
+
+        {% if show_newcard %}
+
+            <div class="card newcard noselect">
+                <div class="card-helper flipper">
+                    <form action="{% url 'cards:addcard' cardlist_id %}" method="post">
+                        {% csrf_token %}
+                        <div class="card_question front">
+                            <div class="valign">
+                                <textarea class="empty-on-click" rows=1 name="card_question" value="" >add a card</textarea>
+                                <i class="fc-next fa fa-share"></i>
+                            </div>
+                        </div>
+                        <div class="card_answer back">
+                            <div class="valign">
+                                <textarea class="empty-on-click" rows=1 name="card_answer">answer</textarea>
+                                <button class="fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
-    {% endfor %}
-
-{% else %}
-    <p>This Carddeck doesn't contain any cards.</p>
-{% endif %}
-
-{% if show_newcard %}
-
-    <div class="card newcard noselect">
-        <div class="card-helper flipper">
-            <form action="{% url 'cards:addcard' cardlist_id %}" method="post">
-                {% csrf_token %}
-                <div class="card_question front">
-                    <div class="valign">
-                        <textarea rows=1 name="card_question" value="" >question</textarea>
-                        <i class="fc-next fa fa-share"></i>
-                    </div>
-                </div>
-                <div class="card_answer back">
-                    <div class="valign">
-                        <textarea rows=1 name="card_answer">answer</textarea>
-                        <button class="fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
-                    </div>
-                </div>
-            </form>
-        </div>
+        {% endif %}
     </div>
-{% endif %}
 
-</div>
+    {% if show_cardlist_crud %}
+        <div class="cardlist-delete-cardlist">
+            <a href="{% url 'cards:deletecardlist' cardlist_id %}">Remove this stack</a>
+        </div>
+    {% endif %}
 
     <script>
         $( document ).ready(function() {
             jQuery('.fliponclick').on('click touchstart', function(e) {
                 var target = jQuery(e.target).prop('tagName');
-                if ( target == 'TEXTAREA') {
-                    jQuery(e.target).val("");
-                } else {
+                if ( target != 'TEXTAREA') {
                     jQuery(this).toggleClass('flip');
                 }
             });
