@@ -24,7 +24,7 @@ DEBUG = False
 
 TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['flashcards.typodrive.com', 'www.mercedes-espanol.ch']
 
 
 # Application definition
@@ -108,13 +108,20 @@ LOGGING = {
             'level':'DEBUG',
             'class':'django.utils.log.NullHandler',
         },
+        'logfile': {
+            'level':'DEBUG',
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': BASE_DIR + "/logfile.log",
+            'maxBytes': 50000,
+            'backupCount': 2,
+        },
     },
     'loggers': {
         '': {
             # this sets root level logger to log debug and higher level
             # logs to console. All other loggers inherit settings from
             # root level logger.
-            'handlers': ['console'],
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': False, # this tells logger to send logging message
                                 # to its parent (will send if set to True)
