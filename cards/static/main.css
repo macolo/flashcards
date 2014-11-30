@@ -34,7 +34,7 @@ body {
     float:left;
     perspective: 1000px;
     -webkit-perspective: 1000px;
-        height:250px;
+    height:250px;
     width:350px;
 }
 
@@ -43,11 +43,11 @@ body {
 }
 
 .card_answer, .card_question {
-    border: grey solid 1px;
+    border: #CCCCCC solid 1px;
     background-color: #F5F5F5;
     text-align: center;
     width: 100%;
-    box-shadow: 10px 10px 5px #888888;
+    box-shadow: 4px 4px 4px #CCCCCC;
     overflow:hidden;
 }
 
