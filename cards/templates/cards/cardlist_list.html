@@ -3,18 +3,26 @@
 {% block title %}Cardlist Index{% endblock %}
 
 {% block header %}
-<a href="{% url 'logout' %}">Log out</a>
+        <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
+        <div class="header-element">
+            <form action="{% url 'cards:newcardlist' %}" method="post">
+                <label>New Stack:</label>
+                {% csrf_token %}
+                <input class="empty-on-click" name="cardlist_name" type="text" value=""/>
+                <button class="new-cardlist-button" type="submit"><i class="fa fa-paper-plane"></i></button>
+            </form>
+        </div>
 {% endblock %}
 
 {% block content %}
 
-{% if cardlist_list %}
-    <ul>
-    {% for cardlist in cardlist_list %}
-        <li><a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>You haven't got any cardlists.</p>
-{% endif %}
+    {% if cardlist_list %}
+        <ul>
+            {% for cardlist in cardlist_list %}
+                <li><a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't got any cardlists.</p>
+    {% endif %}
 {% endblock %}
