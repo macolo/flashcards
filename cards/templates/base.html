@@ -28,6 +28,12 @@
             <a href="{% url 'login' %}">Log in</a>
         {% endif %}
     </div>
+    {% if user.is_superuser or user.is_staff %}
+         <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
+         <div class="header-element">
+            <a href="{% url 'admin:index' %}">Admin Interface</a>
+         </div>
+    {% endif %}
     {% block header %}{% endblock %}
 </div>
 <div id="content">
