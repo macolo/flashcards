@@ -1,17 +1,7 @@
 {% extends "base.html" %}
 
-{% block title %}Cardlist Index{% endblock %}
-
+{% block content_title %}<h1>Your Card Stacks</h1>{% endblock %}
 {% block header %}
-        <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
-        <div class="header-element">
-            <form action="{% url 'cards:newcardlist' %}" method="post">
-                <label>New Stack:</label>
-                {% csrf_token %}
-                <input class="empty-on-click" name="cardlist_name" type="text" value=""/>
-                <button class="new-cardlist-button" type="submit"><i class="fa fa-paper-plane"></i></button>
-            </form>
-        </div>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +11,14 @@
             {% for cardlist in cardlist_list %}
                 <li><a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
             {% endfor %}
+            <li>
+                <form action="{% url 'cards:newcardlist' %}" method="post">
+                    <label>New Stack:</label>
+                    {% csrf_token %}
+                    <input class="line-input empty-on-click" name="cardlist_name" type="text" value=""/>
+                    <button class="small-button new-cardlist-button" type="submit"><i class="fa fa-paper-plane"></i></button>
+                </form>
+            </li>
         </ul>
     {% else %}
         <p>You haven't got any cardlists.</p>

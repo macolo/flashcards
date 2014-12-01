@@ -5,7 +5,7 @@
 {% block header %}
      <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
     <div class="header-element">
-        <a href="{% url 'cards:cardlist_index' %}">Back to Cardstack Overview</a>
+        <a href="{% url 'cards:cardlist_index' %}">Home</a>
     </div>
 {% endblock %}
 
@@ -46,7 +46,7 @@
                         <div class="card_answer back">
                             <div class="valign">
                                 <textarea class="empty-on-click" rows=1 name="card_answer">answer</textarea>
-                                <button class="fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
+                                <button class="small-button fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
                             </div>
                         </div>
                     </form>
@@ -57,7 +57,7 @@
 
     {% if show_cardlist_crud %}
         <div class="cardlist-delete-cardlist">
-            <a href="{% url 'cards:deletecardlist' cardlist_id %}">Remove this stack</a>
+            <a class="big-button" href="{% url 'cards:deletecardlist' cardlist_id %}">Remove this stack</a>
         </div>
     {% endif %}
 

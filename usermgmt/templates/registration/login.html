@@ -1,27 +1,28 @@
 {% extends "base.html" %}
-
+{% block content_title %}<h1>Your Profile</h1>{% endblock %}
 {% block content %}
 
-{% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+    <div class="text-content login">
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
-<table>
-<tr>
-    <td>{{ form.username.label_tag }}</td>
-    <td>{{ form.username }}</td>
-</tr>
-<tr>
-    <td>{{ form.password.label_tag }}</td>
-    <td>{{ form.password }}</td>
-</tr>
-</table>
+        {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
 
-<input type="submit" value="login" />
-<input type="hidden" name="next" value="{{ next }}" />
-</form>
+        <form method="post" autocomplete="off" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div id="username">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div id="password">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
 
-<p><a href="{% url 'password_reset' %}">Reset your password</a>.</p>
+            <button class="big-button" type="submit">Login</button>
+            <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+
+        <p><a href="{% url 'password_reset' %}">Reset your password</a></p>
+    </div>
 {% endblock %}
