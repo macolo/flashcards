@@ -63,7 +63,7 @@
 
     <script>
         $( document ).ready(function() {
-            jQuery('.fliponclick').on('click touchstart', function(e) {
+            jQuery('.fliponclick').on('click', function(e) {
                 var target = jQuery(e.target).prop('tagName');
                 if ( target != 'TEXTAREA') {
                     jQuery(this).toggleClass('flip');
