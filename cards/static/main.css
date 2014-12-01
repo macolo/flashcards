@@ -9,7 +9,13 @@ body {
 }
 
 #header {
-    padding:5px;
+    padding:1em;
+}
+
+.header-element a {
+    text-decoration: none;
+    margin-right:1em;
+
 }
 
 .header-element,
@@ -259,4 +265,24 @@ body {
     font-size: 1.5em;
     margin:10px;
     line-height: 2em;
+}
+
+/* unvisited link */
+a:link {
+    color: inherit;
+}
+
+/* visited link */
+a:visited {
+    color: inherit;
+}
+
+/* mouse over link */
+a:hover {
+    color: inherit;
+}
+
+/* selected link */
+a:active {
+    color: inherit;
 }

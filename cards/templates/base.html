@@ -24,22 +24,16 @@
 <div id="header">
     {% if user.is_authenticated %}
         <div class="header-element">
-            <a href="{% url 'profile' %}">{{ user.get_username }}</a>
+            <a href="{% url 'profile' %}"><i class="fa fa-user"></i> {{ user.get_username }}</a>
         </div>
-        <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
         <div class="header-element">
-            <a href="{% url 'logout' %}">Log out</a>
-        </div>
-    {% else %}
-        <div class="header-element">
-            <a href="{% url 'login' %}">Log in</a>
+            <a href="{% url 'logout' %}"><i class="fa fa-power-off"></i> logout</a>
         </div>
     {% endif %}
 
     {% if user.is_superuser or user.is_staff %}
-        <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
         <div class="header-element">
-            <a href="{% url 'admin:index' %}">Admin Interface</a>
+            <a href="{% url 'admin:index' %}"><i class="fa fa-cog"></i> admin</a>
         </div>
     {% endif %}
     {% block header %}{% endblock %}
