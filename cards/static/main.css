@@ -3,20 +3,38 @@ body {
 
 }
 
+.text-content {
+    margin-left:1em;
+    margin-right:1em;
+}
+
+#header {
+    padding:5px;
+}
+
 .header-element,
 .header-element-separator {
     float:left;
 }
 
 #contenttitle h1 {
+    white-space: nowrap;
+    font-size: 5vw;
+    padding:0.5em;
     transition: 1s;
     -webkit-transition: 1s;
 }
 
 @media screen and (max-width: 410px) {
     #contenttitle h1 {
-        font-size: 5vw;
         text-align: center;
+        font-size: 5vw;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    #contenttitle h1 {
+        font-size: 2em;
     }
 }
 
@@ -113,18 +131,6 @@ body {
     /* text-decoration: underline; */
 }
 
-/* below one card width we want to make cards fluid and also adapt
- text size accordingly
-
- The values are: ‘vw’ (viewport width), ‘vh’ (viewport height), ‘vmin’ (the smaller of vw or vh), ‘vmax’ (the larger or vw or vh).
- 1 v == 1% of the initial containing block
-
- */
-@media screen and (max-width: 410px) {
-
-
-}
-
 .valign {
     vertical-align:middle;
     display:table-cell;
@@ -186,7 +192,62 @@ body {
     user-select: none;
 }
 
-button {
+.small-button {
     background:none;
     border:none;
+}
+
+.big-button {
+    display:inline-block;
+    text-decoration: none;
+    margin:15px;
+    padding: 10px 15px;
+    background: #4479BA;
+    color: #FFF;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    border: solid 1px #20538D;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+    -webkit-transition-duration: 0.2s;
+    -moz-transition-duration: 0.2s;
+    transition-duration: 0.2s;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+
+.big-button:hover {
+    background: #356094;
+    border: solid 1px #2A4E77;
+    text-decoration: none;
+}
+
+.big-button:active {
+    -webkit-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    -moz-box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.6);
+    background: #2E5481;
+    border: solid 1px #203E5F;
+}
+
+.login input,
+.line-input {
+    background-color: transparent !important;
+    border: none;
+    border-bottom: 1px dotted grey;
+    outline: none;
+    font-family: inherit;
+    text-align: inherit;
+    outline: none;
+}
+
+.login input {
+    font-size: 1.5em;
+    margin:10px;
+    line-height: 2em;
 }

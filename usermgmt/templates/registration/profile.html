@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 {% block title %}{{ title }}{% endblock %}
+
+{% block header %}
+     <div class="header-element-separator">&nbsp;&nbsp;| &nbsp;&nbsp;</div>
+    <div class="header-element">
+        <a href="{% url 'cards:cardlist_index' %}">Home</a>
+    </div>
+{% endblock %}
+
 {% block content_title %}<h1>Profile</h1>{% endblock %}
 {% block content %}
+    <div class="text-content login">
+        <p>Username: {{ user }}</p>
 
-<p>You are {{ user }}</p>
-
-<p><a href="{% url 'password_change' %}">Change your password</a>
-
+        <a class="big-button" href="{% url 'password_change' %}">Change your password</a>
+    </div>
 
 {% endblock %}
