@@ -53,9 +53,18 @@ body {
     outline: none;
 }
 
-#card_list {
+#card-list {
     /* subsequent divs should start below */
     overflow:hidden;
+}
+
+#cardlist-list {
+    font-size: 1.1em;
+    margin-left:1em;
+}
+
+#cardlist-list li {
+    padding:5px;
 }
 
 .card {
@@ -114,7 +123,7 @@ body {
     font-size:14px !important;
 }
 
-#card_list textarea {
+#card-list textarea {
     background-color: transparent;
     border:none;
     border-bottom: 1px dotted grey;

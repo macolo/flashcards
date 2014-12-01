@@ -7,7 +7,7 @@
 {% block content %}
 
     {% if cardlist_list %}
-        <ul>
+        <ul id="cardlist-list">
             {% for cardlist in cardlist_list %}
                 <li><a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
             {% endfor %}
