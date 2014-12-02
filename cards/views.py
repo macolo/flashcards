@@ -6,12 +6,13 @@ from django.http import Http404
 from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.utils import timezone
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 # Create your views here.
-
+import datetime
 from django.shortcuts import redirect
 
 from cards.models import CardList, Card, CardListGroup, CardListUser
@@ -53,6 +54,7 @@ def new_cardlist(request):
     return redirect('cards:cardlist_index')
 
 
+
 @login_required
 def cardlist(request, cardlist_id):
     cardlist = CardList.objects.get(id=cardlist_id)
@@ -77,9 +79,20 @@ def cardlist(request, cardlist_id):
         user_and_group_access):
             return HttpResponseForbidden()
 
-    cards = cardlist.cards.all()
-    logger.debug(cards.all)
+    _cards = cardlist.cards.all().order_by('-created_date')
 
+    ## show a special 'new' tag if the card has been created / edited <24h from now
+    cards = [];
+    now = timezone.now()
+    for c in _cards:
+        created = c.created_date
+        timediff = (now - created)
+        timediff_in_min = timediff.total_seconds()/60
+        max_timediff_in_min = 1440
+        if timediff_in_min < max_timediff_in_min:
+            # This card is 'recent'!
+            c.is_new = True
+        cards.append(c)
 
     # Flag for the template that decides whether UI for add new card should be visible
     show_newcard = False

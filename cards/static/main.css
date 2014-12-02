@@ -286,3 +286,11 @@ a:hover {
 a:active {
     color: inherit;
 }
+
+.is-new {
+    color: #cacaca;
+    font-size:11px;
+    position:absolute;
+    bottom:5px;
+    right:5px;
+}
