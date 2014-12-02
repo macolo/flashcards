@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
+from django.contrib import messages
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -157,9 +158,29 @@ def add_card_to_cardlist(request, cardlist_id):
         return render(request, 'cards/card_list.html', context)
 
     current_cardlist = CardList.objects.get(pk=cardlist_id)
-    newcard = Card.objects.create(card_question=question,card_answer=answer)
+
+    # we have take care here that we don't add duplicates within one card list and to the database
+    # if the question exists in db however is not added yet to the card list, add that one
+    # if the question exists in db and is already added to the card list, do nothing
+
+    existing_card_in_db = Card.objects.filter(card_question=question)
+    existing_card_in_cardlist = current_cardlist.cards.filter(card_question=question)
+    if existing_card_in_db:
+        if existing_card_in_cardlist:
+            # do nothing
+            messages.add_message(request, messages.INFO, 'A card like this is already part of this stack!')
+            logger.error('A card like this is already part of this stack!')
+            return redirect('cards:cardlist', cardlist_id)
+        if not existing_card_in_cardlist:
+            # add card from db, there shouldnt be multiple cards with the same question in the DB (hopefully)
+            newcard = existing_card_in_db[0]
+            logger.error('Found an existing card in the DB and added it!')
+    else:
+        # nothing found, create card
+        newcard = Card.objects.create(card_question=question,card_answer=answer)
+        newcard.save()
     current_cardlist.cards.add(newcard)
-    newcard.save()
+    messages.add_message(request, messages.SUCCESS, 'Your card has been added to this stack!')
 
     # Then redirect to the active cardlist
     return redirect('cards:cardlist', cardlist_id)
