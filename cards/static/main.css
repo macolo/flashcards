@@ -1,46 +1,15 @@
 body {
     font-family: 'Open Sans', sans-serif;
-
-}
-
-.text-content {
-    margin-left:1em;
-    margin-right:1em;
-}
-
-#header {
     padding:1em;
-}
-
-.header-element a {
-    text-decoration: none;
-    margin-right:1em;
 
 }
 
-.header-element,
-.header-element-separator {
-    float:left;
-}
-
-#contenttitle h1 {
-    white-space: nowrap;
-    font-size: 5vw;
-    padding:0.5em 0 0.5em 0;
-    transition: 1s;
-    -webkit-transition: 1s;
+#content {
 }
 
 @media screen and (max-width: 410px) {
-    #contenttitle h1 {
-        text-align: center;
-        font-size: 5vw;
-    }
-}
-
-@media screen and (min-width: 600px) {
-    #contenttitle h1 {
-        font-size: 2em;
+    #content {
+        margin:0;
     }
 }
 
@@ -59,8 +28,40 @@ body {
     outline: none;
 }
 
-#content {
-    margin-left:1em;
+.header-element a {
+    text-decoration: none;
+    margin-right:1em;
+
+}
+
+.header-element,
+.header-element-separator {
+    float:left;
+}
+
+#toolbar {
+    margin-bottom:1.5em;
+    overflow:hidden;
+}
+
+#contenttitle h1 {
+    white-space: nowrap;
+    font-size: 5vw;
+    transition: 1s;
+    -webkit-transition: 1s;
+}
+
+@media screen and (max-width: 410px) {
+    #contenttitle h1 {
+        text-align: center;
+        font-size: 5vw;
+    }
+}
+
+@media screen and (min-width: 600px) {
+    #contenttitle h1 {
+        font-size: 2em;
+    }
 }
 
 #card-list {
@@ -70,7 +71,6 @@ body {
 
 #cardlist-list {
     font-size: 1.1em;
-    margin-left:1em;
 }
 
 #cardlist-list li {
@@ -131,6 +131,8 @@ body {
     bottom:5px;
     right:5px;
     font-size:14px !important;
+    padding:0.5em;
+    cursor:pointer;
 }
 
 #card-list textarea {

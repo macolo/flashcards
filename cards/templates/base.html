@@ -22,35 +22,44 @@
 
 <body>
 <div id="header">
-    {% if user.is_authenticated %}
-        <div class="header-element">
-            <a href="{% url 'profile' %}"><i class="fa fa-user"></i> {{ user.get_username }}</a>
-        </div>
-        <div class="header-element">
-            <a href="{% url 'logout' %}"><i class="fa fa-power-off"></i> logout</a>
-        </div>
-    {% endif %}
-
-    {% if user.is_superuser or user.is_staff %}
-        <div class="header-element">
-            <a href="{% url 'admin:index' %}"><i class="fa fa-cog"></i> admin</a>
-        </div>
-    {% endif %}
-    {% block header %}{% endblock %}
-</div>
-<div id="content">
-    <div id="contenttitle">{% block content_title %}{% endblock %}</div>
-        {% if messages %}
-            <div id="messages">
-                {% for message in messages %}
-                    <span {% if message.tags %} class="{{ message.tags }}"{% endif %}>
-                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
-                        {{ message }}
-                    </span>
-                {% endfor %}
+    <div id="toolbar">
+        {% if user.is_authenticated %}
+            <div class="header-element">
+                <a href="{% url 'profile' %}"><i class="fa fa-user"></i> {{ user.get_username }}</a>
+            </div>
+            <div class="header-element">
+                <a href="{% url 'logout' %}"><i class="fa fa-power-off"></i> logout</a>
             </div>
         {% endif %}
-    {% block content %}{% endblock %}</div>
+
+        {% if user.is_superuser or user.is_staff %}
+            <div class="header-element">
+                <a href="{% url 'admin:index' %}"><i class="fa fa-cog"></i> admin</a>
+            </div>
+        {% endif %}
+
+        {% block header %}{% endblock %}
+    </div>
+
+    <div id="contenttitle">
+        {% block content_title %}{% endblock %}
+    </div>
+
+    {% if messages %}
+        <div id="messages">
+            {% for message in messages %}
+                <span {% if message.tags %} class="{{ message.tags }}"{% endif %}>
+                        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+                    {{ message }}
+                    </span>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<div id="content">
+    {% block content %}{% endblock %}
+</div>
 
 
 <script>
