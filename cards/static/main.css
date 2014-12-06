@@ -240,6 +240,7 @@ body {
     -moz-user-select:none;
     -ms-user-select:none;
     user-select:none;
+    cursor: pointer;
 }
 
 .big-button:hover {
@@ -265,6 +266,8 @@ body {
     font-family: inherit;
     text-align: inherit;
     outline: none;
+    width: 80%;
+    max-width:400px;
 }
 
 .login input {
@@ -273,26 +276,15 @@ body {
     line-height: 2em;
 }
 
-/* unvisited link */
-a:link {
-    color: inherit;
-}
+/* reset link color */
+a:link {color: inherit;}
+a:visited { color: inherit;}
+a:hover {color: inherit;}
+a:active {color: inherit;}
 
-/* visited link */
-a:visited {
-    color: inherit;
-}
 
-/* mouse over link */
-a:hover {
-    color: inherit;
-}
-
-/* selected link */
-a:active {
-    color: inherit;
-}
-
+/* a little flag in the lower right corner of flashcards that shows
+whether a card has been created <24 hours ('NEW') */
 .is-new {
     color: #cacaca;
     font-size:11px;
@@ -300,6 +292,8 @@ a:active {
     bottom:5px;
     right:5px;
 }
+
+/* the messages on top below the view title that are fed from django.utils.messages */
 
 .info { color: grey }
 
