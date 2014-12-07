@@ -125,17 +125,27 @@ body {
     font-style:italic;
 }
 
-.card_answer, .card_question {
-    border: #CCCCCC solid 1px;
-    background-color: #F5F5F5;
+.card_answer,
+.card_question {
+    border: rgba(204, 204, 204, 1) solid 1px;
+    background-color: rgba(245, 245, 245, 1);
+    color: rgba(0, 0, 0, 0.75);
     text-align: center;
     width: 100%;
-    box-shadow: 4px 4px 4px #CCCCCC;
+    box-shadow: 4px 4px 4px rgba(204, 204, 204, 1);
     overflow:hidden;
     height:250px;
     width:350px;
     /* in case somebody uses aaa/bbb/ccc/ddd... */
     word-break: break-all;
+}
+
+.newcard .card_answer,
+.newcard .card_question {
+    border: rgba(204, 204, 204, 0.4) solid 1px;
+    background-color: rgba(245, 245, 245, 0.4);
+    box-shadow: 4px 4px 4px rgba(204, 204, 204, 0.4);
+    color: rgba(0, 0, 0, 0.4);
 }
 
 .fc-next, .fc-submit {
@@ -148,7 +158,7 @@ body {
     cursor:pointer;
 }
 
-#card-list textarea {
+.newcard textarea {
     background-color: transparent;
     border:none;
     border-bottom: 1px dotted grey;
@@ -216,6 +226,7 @@ body {
 	transform: rotateY(180deg);
     -webkit-transform: rotateY(180deg);
 }
+
 
 .noselect {
     -webkit-touch-callout: none;
