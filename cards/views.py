@@ -21,21 +21,13 @@ from cards.models import CardList, Card, CardListGroup, CardListUser
 
 @login_required
 def cardlist_index(request):
+    # let' retrieve all the cardlists where the user has at least 'r' (read) access
+    # this includes lists with 'cr' (read and create) and 'crud' (full) access.
+    cardlist_list = get_list_of_allowed_cardlists(request, 'r')
 
-    if request.user.is_superuser:
-         cardlist_list = CardList.objects.all()
-    else:
-        # find all cardlists which groups match current_user_group_ids OR which users match current_user_id
-        # OR which owner match current_user_id
-        # http://stackoverflow.com/questions/7740356/logical-or-of-django-many-to-many-queries-returns-duplicate-results
-        cardlist_list = CardList.objects.filter(
-            Q(groups__in=list(request.user.groups.all())) |
-            Q(users__exact=request.user.id) |
-            Q(owner__exact=request.user.id)
-        ).distinct().order_by('-created_date')
-
-    context = {'cardlist_list': cardlist_list,}
+    context = {'cardlist_list': cardlist_list, }
     return render(request, 'cards/cardlist_list.html', context)
+
 
 @login_required
 def new_cardlist(request):
@@ -44,7 +36,7 @@ def new_cardlist(request):
     except(StandardError):
         error_msg = 'Post request for card creation is lacking mandatory values.'
         logger.error(error_msg)
-        context = {'error_msg' : error_msg}
+        context = {'error_msg': error_msg}
         return render(request, 'cards/card_list.html', context)
 
     # write the new (empty) card list to the database
@@ -55,9 +47,12 @@ def new_cardlist(request):
     return redirect('cards:cardlist_index')
 
 
-
 @login_required
 def cardlist(request, cardlist_id):
+
+    # hmm django checks arguments in as strings, however this needs to be compared to a number in the template later on
+    cardlist_id = int(cardlist_id)
+
     cardlist = CardList.objects.get(id=cardlist_id)
     cardlist_name = cardlist.cardlist_name
 
@@ -75,20 +70,20 @@ def cardlist(request, cardlist_id):
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
     if not (request.user.is_superuser or
-        request.user.is_staff or
-        is_owner or
-        user_and_group_access):
-            return HttpResponseForbidden()
+                request.user.is_staff or
+                is_owner or
+                user_and_group_access):
+        return HttpResponseForbidden()
 
     _cards = cardlist.cards.all().order_by('-created_date')
 
-    ## show a special 'new' tag if the card has been created / edited <24h from now
+    # # show a special 'new' tag if the card has been created / edited <24h from now
     cards = [];
     now = timezone.now()
     for c in _cards:
         created = c.created_date
         timediff = (now - created)
-        timediff_in_min = timediff.total_seconds()/60
+        timediff_in_min = timediff.total_seconds() / 60
         max_timediff_in_min = 1440
         if timediff_in_min < max_timediff_in_min:
             # This card is 'recent'!
@@ -104,21 +99,26 @@ def cardlist(request, cardlist_id):
         show_cardlist_crud = True
 
     if user_and_group_access:
-        if user_and_group_access=='crud':
+        if user_and_group_access == 'crud':
             show_newcard = True
             show_cardlist_crud = True
-        elif user_and_group_access=='cr':
+        elif user_and_group_access == 'cr':
             show_newcard = True
             show_cardlist_crud = False
 
-    context = {'card_list' : cards,
+    # This gets us all cardlists where a user can read and create cards (and above)
+    # This is needed in order to display a list of cardlists the user can copy a card to.
+    modifiable_cardlists = get_list_of_allowed_cardlists(request, 'cr')
+
+
+    context = {'card_list': cards,
                'cardlist_name': cardlist_name,
                'cardlist_id': cardlist_id,
                'show_newcard': show_newcard,
                'show_cardlist_crud': show_cardlist_crud,
+               'modifiable_cardlists': modifiable_cardlists,
     }
     return render(request, 'cards/card_list.html', context)
-
 
 
 @login_required
@@ -132,7 +132,8 @@ def get_user_and_group_access_level(request, cardlist_id):
     for po in CardListUser.objects.filter(cardlist__pk=cardlist_id, users__pk=request.user.id).distinct():
         modes.append(po.mode)
 
-    for po in CardListGroup.objects.filter(cardlist__pk=cardlist_id, groups__in=list(request.user.groups.all())).distinct():
+    for po in CardListGroup.objects.filter(cardlist__pk=cardlist_id,
+                                           groups__in=list(request.user.groups.all())).distinct():
         modes.append(po.mode)
 
     # Iterates over a list and finds the highest access level
@@ -149,7 +150,7 @@ def get_user_and_group_access_level(request, cardlist_id):
 
 
 @login_required
-def add_card_to_cardlist(request, cardlist_id):
+def create_cardlist(request, cardlist_id):
     # Here we will store the new card
     try:
         question = request.POST['card_question']
@@ -157,7 +158,7 @@ def add_card_to_cardlist(request, cardlist_id):
     except(StandardError):
         error_msg = 'Post request for card creation is lacking mandatory values.'
         logger.error(error_msg)
-        context = {'error_msg' : error_msg}
+        context = {'error_msg': error_msg}
         return render(request, 'cards/card_list.html', context)
 
     current_cardlist = CardList.objects.get(pk=cardlist_id)
@@ -180,7 +181,7 @@ def add_card_to_cardlist(request, cardlist_id):
             logger.error('Found an existing card in the DB and added it!')
     else:
         # nothing found, create card
-        newcard = Card.objects.create(card_question=question,card_answer=answer)
+        newcard = Card.objects.create(card_question=question, card_answer=answer)
         newcard.save()
     current_cardlist.cards.add(newcard)
     messages.add_message(request, messages.SUCCESS, 'Your card has been added to this stack!')
@@ -188,9 +189,22 @@ def add_card_to_cardlist(request, cardlist_id):
     # Then redirect to the active cardlist
     return redirect('cards:cardlist', cardlist_id)
 
+def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
+
+    card = Card.objects.get(pk=card_id)
+    cardlist = CardList.objects.get(pk=new_cardlist_id)
+    cardlist.cards.add(card)
+    message = 'Added '+card.card_question+' to '+cardlist.cardlist_name+'!'
+    messages.add_message(request, messages.SUCCESS, message)
+    logger.debug(message)
+
+    # Then redirect to the active cardlist
+    return redirect('cards:cardlist', original_cardlist_id)
+
+
+
 @login_required
 def delete_cardlist(request, cardlist_id):
-
     cardlist = CardList.objects.filter(id=cardlist_id)
     # we need to find out whether the current user is allowed to delete!
     # this is the case if the user is the owner, staff, superuser or if either group or user mode is 'crud'
@@ -200,6 +214,7 @@ def delete_cardlist(request, cardlist_id):
     else:
         is_owner = False
 
+    user_and_group_access = get_user_and_group_access_level(request, cardlist_id)
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
     if request.user.is_superuser or request.user.is_staff or is_owner or user_and_group_access == 'crud':
@@ -207,8 +222,44 @@ def delete_cardlist(request, cardlist_id):
     else:
         messages.add_message(request, messages.ERROR, 'You are not allowed to delete this stack!')
 
-     # Then redirect to the active cardlist
+        # Then redirect to the active cardlist
     return redirect('cards:cardlist_index')
+
+
+@login_required
+def get_list_of_allowed_cardlists(request, at_least_mode):
+    """
+    This function returns the cardlists for wich the user has a specified access
+    :param request: the django request object, containing user
+    :param at_least_mode: the lowest mode from CardListUser or CardListGroup, either 'r', 'cr' or 'crud'
+    :return: a list of cardlist
+    """
+
+    if request.user.is_superuser:
+        cardlist_list = CardList.objects.all()
+        return cardlist_list
+    else:
+        # find all cardlists which groups match current_user_group_ids OR which users match current_user_id
+        # OR which owner match current_user_id
+        # http://stackoverflow.com/questions/7740356/logical-or-of-django-many-to-many-queries-returns-duplicate
+        # -results
+        cardlist_list = CardList.objects.filter(
+            Q(groups__in=list(request.user.groups.all())) | Q(users__exact=request.user.id) |
+            Q(owner__exact=request.user.id)).distinct().order_by('-created_date')
+        if at_least_mode == 'r':
+            return cardlist_list
+        else:
+            # Let' retrieve the highest mode for cardlists the user has access to:
+            cardlist_list_filtered_by_mode = []
+            for cl in cardlist_list:
+                # this gets us the highest access level for that cardlist
+                trumping_mode = get_user_and_group_access_level(request, cl.id)
+                # it needs to be equal or higher than 'cr' OR equal than 'crud'
+                if (at_least_mode == 'cr' and (trumping_mode == 'cr' or trumping_mode == 'crud')) or \
+                        (at_least_mode == 'crud' and trumping_mode == 'crud'):
+                    cardlist_list_filtered_by_mode.append(cl)
+
+            return cardlist_list_filtered_by_mode
 
 
 @login_required
