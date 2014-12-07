@@ -11,12 +11,16 @@
         <form method="post" autocomplete="off" action="{% url 'login' %}">
             {% csrf_token %}
             <div id="username">
-                {{ form.username.label_tag }}
-                {{ form.username }}
+                <span>
+                    {{ form.username.label_tag }}</br>
+                    {{ form.username }}
+                </span>
             </div>
             <div id="password">
-                {{ form.password.label_tag }}
-                {{ form.password }}
+                <span>
+                    {{ form.password.label_tag }}</br>
+                    {{ form.password }}
+                </span>
             </div>
 
             <button class="big-button" type="submit">Login</button>

@@ -104,9 +104,12 @@ def cardlist(request, cardlist_id):
         show_cardlist_crud = True
 
     if user_and_group_access:
-        if user_and_group_access=='crud' or user_and_group_access=='cr':
+        if user_and_group_access=='crud':
             show_newcard = True
             show_cardlist_crud = True
+        elif user_and_group_access=='cr':
+            show_newcard = True
+            show_cardlist_crud = False
 
     context = {'card_list' : cards,
                'cardlist_name': cardlist_name,
@@ -137,7 +140,7 @@ def get_user_and_group_access_level(request, cardlist_id):
     for mode in modes:
         # if it is the highest permission, we can return right away
         if mode == 'crud':
-            return trumping_access_level
+            return mode
         # if its the perm in between, there might later on still be a higher permission
         elif mode == 'cr':
             trumping_access_level = mode
@@ -187,8 +190,22 @@ def add_card_to_cardlist(request, cardlist_id):
 
 @login_required
 def delete_cardlist(request, cardlist_id):
+
     cardlist = CardList.objects.filter(id=cardlist_id)
-    cardlist.delete()
+    # we need to find out whether the current user is allowed to delete!
+    # this is the case if the user is the owner, staff, superuser or if either group or user mode is 'crud'
+
+    if cardlist.owner.pk == request.user.id:
+        is_owner = True
+    else:
+        is_owner = False
+
+    # Check access permissions to this stack, if either one of the conditions is true
+    # allow access.
+    if request.user.is_superuser or request.user.is_staff or is_owner or user_and_group_access == 'crud':
+        cardlist.delete()
+    else:
+        messages.add_message(request, messages.ERROR, 'You are not allowed to delete this stack!')
 
      # Then redirect to the active cardlist
     return redirect('cards:cardlist_index')
