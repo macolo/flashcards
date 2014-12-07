@@ -90,7 +90,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 # where static files will be available over http
-STATIC_URL = '/static/'
+STATIC_URL = '/flashcards/static/'
 
 # where static files will be copied to
 STATIC_ROOT = '/var/www/flashcards/static/'
@@ -135,7 +135,10 @@ LOGGING = {
     },
 }
 
-LOGIN_REDIRECT_URL = "/"
+LOGIN_REDIRECT_URL = "cards:cardlist_index"
+
+# this is the name for the login page from flashcards/urls.py
+LOGIN_URL = 'login'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
