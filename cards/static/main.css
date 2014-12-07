@@ -134,6 +134,8 @@ body {
     overflow:hidden;
     height:250px;
     width:350px;
+    /* in case somebody uses aaa/bbb/ccc/ddd... */
+    word-break: break-all;
 }
 
 .fc-next, .fc-submit {
