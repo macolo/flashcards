@@ -78,12 +78,16 @@ body {
 
 #cardlist-list {
     font-size: 1.1em;
+    list-style-type: none;
 }
 
 #cardlist-list li {
     padding:5px;
 }
 
+#cardlist-list .new-cardlist {
+    margin-top:0.5em;
+}
 .card {
     font-size:1.9em;
     margin:30px;

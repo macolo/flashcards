@@ -9,15 +9,17 @@
     {% if cardlist_list %}
         <ul id="cardlist-list">
             {% for cardlist in cardlist_list %}
-                <li><a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
+                <li>
+                    <i class="fa fa-tags"></i>
+                    <a href="{% url 'cards:cardlist' cardlist.id %}">{{ cardlist.cardlist_name }}</a>
+                </li>
             {% endfor %}
-            <li>
+            <li class="new-cardlist">
                 <form action="{% url 'cards:newcardlist' %}" method="post">
-                    <span>New Stack:</br>
-                    {% csrf_token %}
+                        <i class="fa fa-tags"></i> New Stack:</br>
+                        {% csrf_token %}
                         <input class="line-input empty-on-click" name="cardlist_name" type="text" value=""/>
                         <button class="small-button new-cardlist-button" type="submit"><i class="fa fa-paper-plane"></i></button>
-                    </span>
                 </form>
             </li>
         </ul>
