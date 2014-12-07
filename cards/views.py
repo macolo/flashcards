@@ -193,6 +193,23 @@ def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
 
     card = Card.objects.get(pk=card_id)
     cardlist = CardList.objects.get(pk=new_cardlist_id)
+
+    if cardlist.owner.pk == request.user.id:
+        is_owner = True
+    else:
+        is_owner = False
+
+    user_and_group_access = get_user_and_group_access_level(request, new_cardlist_id)
+
+    # Check access permissions to this stack, if either one of the conditions is true
+    # allow access.
+    if not (request.user.is_superuser or
+                request.user.is_staff or
+                is_owner or
+                user_and_group_access == 'cr' or
+                user_and_group_access == 'crud'):
+        return HttpResponseForbidden()
+
     cardlist.cards.add(card)
     message = 'Added '+card.card_question+' to '+cardlist.cardlist_name+'!'
     messages.add_message(request, messages.SUCCESS, message)
