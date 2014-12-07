@@ -99,6 +99,8 @@ body {
     transition: 1s;
     -webkit-transition: 1s;
     cursor:pointer;
+    /* maannn... http://stackoverflow.com/questions/13620670/prevent-clickable-div-from-being-highlighted-in-android-webview */
+    -webkit-tap-highlight-color:transparent;
 }
 
 /* this is smaller than a card! We have to shrink the cards */
@@ -139,6 +141,7 @@ body {
     width:350px;
     /* in case somebody uses aaa/bbb/ccc/ddd... */
     word-break: break-all;
+
 }
 
 .newcard .card_answer,

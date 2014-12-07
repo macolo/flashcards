@@ -19,8 +19,8 @@
 
             {% for card in card_list %}
                 <div class="card flip-container fliponclick noselect">
-                    <div class="card-helper flipper">
-                        <div class="card_question front">
+                    <div class="card-helper flipper noselect">
+                        <div class="card_question front noselect">
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
@@ -42,7 +42,7 @@
 
 
                         </div>
-                        <div class="card_answer back"><div class="valign">{{ card.card_answer }}</div></div>
+                        <div class="card_answer back noselect"><div class="valign">{{ card.card_answer }}</div></div>
                     </div>
                 </div>
             {% endfor %}
