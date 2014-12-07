@@ -56,7 +56,7 @@ docs/_build/
 .idea/
 
 # Static
-static/
+/static/
 
 # Other
 credentials.json
