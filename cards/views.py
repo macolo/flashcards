@@ -252,7 +252,7 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
     :return: a list of cardlist
     """
 
-    if request.user.is_superuser:
+    if request.user.is_superuser or request.user.is_staff:
         cardlist_list = CardList.objects.all()
         return cardlist_list
     else:
@@ -263,12 +263,16 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
         cardlist_list = CardList.objects.filter(
             Q(groups__in=list(request.user.groups.all())) | Q(users__exact=request.user.id) |
             Q(owner__exact=request.user.id)).distinct().order_by('-created_date')
+        # This returns all cardlists, because 'r' is the lowest access level.
         if at_least_mode == 'r':
             return cardlist_list
         else:
             # Let' retrieve the highest mode for cardlists the user has access to:
             cardlist_list_filtered_by_mode = []
             for cl in cardlist_list:
+                # first check if user is owner:
+                if cl.owner == request.user:
+                    cardlist_list_filtered_by_mode.append(cl)
                 # this gets us the highest access level for that cardlist
                 trumping_mode = get_user_and_group_access_level(request, cl.id)
                 # it needs to be equal or higher than 'cr' OR equal than 'crud'
