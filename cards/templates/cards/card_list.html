@@ -21,10 +21,26 @@
                 <div class="card flip-container fliponclick noselect">
                     <div class="card-helper flipper">
                         <div class="card_question front">
-                            <div class="valign">{{ card.card_question }}</div>
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
+                            <div class="copyto-cardlist non-flippable"><i class="fa fa-files-o"></i></div>
+                            <div class="copyto-cardlist-list non-flippable">
+                                <ul>
+                                    {% if modifiable_cardlists %}
+                                        {% for cardlist in modifiable_cardlists %}
+                                            {% if cardlist_id != cardlist.id %}
+                                                <li><a href="{% url 'cards:copycardto' cardlist_id card.id cardlist.id %}"><i class="fa fa-tags"></i> {{ cardlist.cardlist_name }}</a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <li>You haven't got 'create' access to any list.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="valign">{{ card.card_question }}</div>
+
+
                         </div>
                         <div class="card_answer back"><div class="valign">{{ card.card_answer }}</div></div>
                     </div>
@@ -39,7 +55,7 @@
 
             <div class="card newcard noselect">
                 <div class="card-helper flipper">
-                    <form action="{% url 'cards:addcard' cardlist_id %}" method="post">
+                    <form action="{% url 'cards:createcard' cardlist_id %}" method="post">
                         {% csrf_token %}
                         <div class="card_question front">
                             <div class="valign">
@@ -65,11 +81,14 @@
         </div>
     {% endif %}
 
+
     <script>
         $( document ).ready(function() {
             jQuery('.fliponclick').on('click', function(e) {
-                var target = jQuery(e.target).prop('tagName');
-                if ( target != 'TEXTAREA') {
+                var target = jQuery(e.target);
+                //console.log(target.attr('class'))
+                //console.log(jQuery(target).parents('.non-flippable'))
+                if ( !(jQuery(target).hasClass('non-flippable') || jQuery(target).parents('.non-flippable')[0])) {
                     jQuery(this).toggleClass('flip');
                 }
             });
@@ -81,7 +100,26 @@
             $('textarea').on('keyup', function() {
                 $(this).css('height', 'auto').height($(this).prop('scrollHeight'));
             });
+
+            // make the overlay and show the list
+            jQuery('.copyto-cardlist').on('click', function(e) {
+                jQuery('.overlay').fadeIn();
+                var content = jQuery(this).siblings('.copyto-cardlist-list').html();
+                jQuery('.modal').html(content).fadeIn()
+            });
+
+            jQuery('.overlay').on('click', function(e) {
+                jQuery(this).fadeOut()
+                jQuery('.modal').fadeOut()
+            })
+
         });
 
+
+
     </script>
+    <div class="overlay"></div>
+    <div class="modal"></div>
 {% endblock %}
+
+
