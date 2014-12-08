@@ -1,0 +1,50 @@
+/* Normal styles for the modal */
+#modal {
+    left:50%;
+    top:2em;
+    margin: 0 0 0 -40%;
+    opacity: 1;
+    position:fixed;
+    top:2em;
+    display:none;
+    width:80%;
+    box-sizing:border-box;
+    padding:1em;
+
+    /* border: rgba(204, 204, 204, 1) solid 1px;
+    background-color: rgba(245, 245, 245, 1);
+    color: rgba(0, 0, 0, 0.75);
+    */
+
+    border: solid 1px rgba(224, 59, 0, 0.9);
+    background: rgba(241,90,36,0.9);
+    color:white;
+    box-shadow: 4px 4px 4px rgba(241,90,36,0.3);
+    z-index: 10000;
+}
+
+@media screen and (min-width: 600px) {
+    #modal {
+        width:500px;
+        margin:auto;
+        left:0;
+        right:0;
+    }
+}
+
+#modal li {
+    padding:0.5em;
+}
+
+
+.overlay {
+    display:none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0.9);
+    z-index: 10;
+}
+
