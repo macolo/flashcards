@@ -1,7 +1,6 @@
 body {
     font-family: 'Open Sans', sans-serif;
     padding:1em;
-
 }
 
 #content {
@@ -74,11 +73,26 @@ body {
 #card-list {
     /* subsequent divs should start below */
     overflow:hidden;
+
 }
 
 #cardlist-list {
+    /* the ul that contains the list of cardlists in the index screen */
     font-size: 1.1em;
+    margin-left:25px; /* to counterweight the -23px from the :before tag below */
+}
+
+
+.fa-cardlist-icon {
     list-style-type: none;
+}
+
+.fa-cardlist-icon:before {
+    /* http://astronautweb.co/snippet/font-awesome/ */
+    font-family: 'FontAwesome';
+    content: "\f02c"; /* equals fa-tags */
+    margin:0 3px 0 -23px;
+    color: inherit;
 }
 
 #cardlist-list li {
@@ -133,9 +147,10 @@ body {
     border: rgba(204, 204, 204, 1) solid 1px;
     background-color: rgba(245, 245, 245, 1);
     color: rgba(0, 0, 0, 0.75);
+    box-shadow: 4px 4px 4px rgba(204, 204, 204, 1);
     text-align: center;
     width: 100%;
-    box-shadow: 4px 4px 4px rgba(204, 204, 204, 1);
+
     overflow:hidden;
     height:250px;
     width:350px;
@@ -244,6 +259,7 @@ body {
 .small-button {
     background:none;
     border:none;
+    padding:5px;
 }
 
 .big-button {
@@ -296,6 +312,7 @@ body {
     outline: none;
     width: 80%;
     max-width:400px;
+    line-height:2em;
 }
 
 .login input {
@@ -322,7 +339,7 @@ whether a card has been created <24 hours ('NEW') */
 }
 
 .copyto-cardlist {
-    color: #cacaca;
+    color: rgba(150, 150, 150, 0.7);
     font-size:12px;
     position:absolute;
     top:5px;
@@ -330,45 +347,16 @@ whether a card has been created <24 hours ('NEW') */
     cursor: pointer;
 }
 
+.copyto-cardlist:hover {
+    color: rgba(150, 150, 150, 1);
+}
+
 .copyto-cardlist-list {
     display:none;
 }
 
-.modal {
-    display:none;
-    position:fixed;
-    width:80%;
-    margin-left:-40%;
-    left:50%;
-    top:10%;
-    border: rgba(204, 204, 204, 1) solid 1px;
-    background-color: rgba(245, 245, 245, 1);
-    color: rgba(0, 0, 0, 0.75);
-    text-align: left;
-    box-shadow: 4px 4px 4px rgba(30, 30, 30, 0.8);
 
-}
 
-.modal ul {
-    list-style-type: none;
-    margin:0.5em;
-    padding:0;
-}
-
-.modal li {
-    padding:0.5em;
-    font-size:1em !important;
-}
-
-.overlay {
-    display:none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.5);
-}
 
 /* the messages on top below the view title that are fed from django.utils.messages */
 
