@@ -30,20 +30,25 @@ def cardlist_index(request):
 
 
 @login_required
-def new_cardlist(request):
+def create_cardlist(request):
     try:
         cardlist_name = request.POST['cardlist_name']
-    except(StandardError):
-        error_msg = 'Post request for card creation is lacking mandatory values.'
-        logger.error(error_msg)
-        context = {'error_msg': error_msg}
-        return render(request, 'cards/card_list.html', context)
+    except StandardError:
+        return redirect('cards:cardlist_index')
+    
+    if cardlist_name == "":
+        message = 'Cannot create a cardlist with empty name. Please type in a name.'
+        logger.warning(message)
+        messages.add_message(request, messages.WARNING, message)
+    else:
+        # write the new (empty) card list to the database
+        new_cardlist = CardList(cardlist_name=cardlist_name, owner_id=request.user.id)
+        new_cardlist.save()
+        message = 'Created a new stack!'
+        logger.debug(message)
+        messages.add_message(request, messages.SUCCESS, message)
 
-    # write the new (empty) card list to the database
-    new_cardlist = CardList(cardlist_name=cardlist_name, owner_id=request.user.id)
-    new_cardlist.save()
-
-    # Then redirect to the active cardlist
+    # Then redirect back to the index
     return redirect('cards:cardlist_index')
 
 
@@ -157,7 +162,7 @@ def get_user_and_group_access_level(request, cardlist_id):
 
 
 @login_required
-def create_cardlist(request, cardlist_id):
+def create_card(request, cardlist_id):
     # Here we will store the new card
     try:
         question = request.POST['card_question']
