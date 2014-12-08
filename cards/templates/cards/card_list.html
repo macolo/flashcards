@@ -24,13 +24,14 @@
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
-                            <div class="copyto-cardlist non-flippable"><i class="fa fa-files-o"></i></div>
+                            <div class="copyto-cardlist non-flippable"><i class="small-button fa fa-files-o"></i></div>
                             <div class="copyto-cardlist-list non-flippable">
+                                <p>Copy this card into:</p>
                                 <ul>
                                     {% if modifiable_cardlists %}
                                         {% for cardlist in modifiable_cardlists %}
                                             {% if cardlist_id != cardlist.id %}
-                                                <li><a href="{% url 'cards:copycardto' cardlist_id card.id cardlist.id %}"><i class="fa fa-tags"></i> {{ cardlist.cardlist_name }}</a></li>
+                                                <li class="fa-cardlist-icon"><a href="{% url 'cards:copycardto' cardlist_id card.id cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
                                             {% endif %}
                                         {% endfor %}
                                     {% else %}
@@ -105,12 +106,12 @@
             jQuery('.copyto-cardlist').on('click', function(e) {
                 jQuery('.overlay').fadeIn();
                 var content = jQuery(this).siblings('.copyto-cardlist-list').html();
-                jQuery('.modal').html(content).fadeIn()
+                jQuery('#modal').html(content).fadeIn();
             });
 
             jQuery('.overlay').on('click', function(e) {
-                jQuery(this).fadeOut()
-                jQuery('.modal').fadeOut()
+                jQuery(this).fadeOut();
+                jQuery('#modal').fadeOut();
             })
 
         });
@@ -118,8 +119,7 @@
 
 
     </script>
-    <div class="overlay"></div>
-    <div class="modal"></div>
+
 {% endblock %}
 
 
