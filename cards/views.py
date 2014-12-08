@@ -222,7 +222,7 @@ def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
 
 @login_required
 def delete_cardlist(request, cardlist_id):
-    cardlist = CardList.objects.filter(id=cardlist_id)
+    cardlist = CardList.objects.get(id=cardlist_id)
     # we need to find out whether the current user is allowed to delete!
     # this is the case if the user is the owner, staff, superuser or if either group or user mode is 'crud'
 
