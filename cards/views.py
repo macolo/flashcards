@@ -108,7 +108,14 @@ def cardlist(request, cardlist_id):
 
     # This gets us all cardlists where a user can read and create cards (and above)
     # This is needed in order to display a list of cardlists the user can copy a card to.
-    modifiable_cardlists = get_list_of_allowed_cardlists(request, 'cr')
+    _modifiable_cardlists = get_list_of_allowed_cardlists(request, 'cr')
+
+    # remove active cardlist
+    modifiable_cardlists = []
+    for cl in _modifiable_cardlists:
+        if cl.id != cardlist_id:
+            modifiable_cardlists.append(cl)
+
 
 
     context = {'card_list': cards,
@@ -235,6 +242,7 @@ def delete_cardlist(request, cardlist_id):
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
     if request.user.is_superuser or request.user.is_staff or is_owner or user_and_group_access == 'crud':
+        messages.add_message(request, messages.INFO, 'The stack has been deleted.')
         cardlist.delete()
     else:
         messages.add_message(request, messages.ERROR, 'You are not allowed to delete this stack!')
@@ -273,12 +281,16 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
                 # first check if user is owner:
                 if cl.owner == request.user:
                     cardlist_list_filtered_by_mode.append(cl)
+                    # only add a cl to the stack once.
+                    continue
                 # this gets us the highest access level for that cardlist
                 trumping_mode = get_user_and_group_access_level(request, cl.id)
                 # it needs to be equal or higher than 'cr' OR equal than 'crud'
                 if (at_least_mode == 'cr' and (trumping_mode == 'cr' or trumping_mode == 'crud')) or \
                         (at_least_mode == 'crud' and trumping_mode == 'crud'):
                     cardlist_list_filtered_by_mode.append(cl)
+                    # only add a cl to the stack once. This is to prevent future bugs.
+                    continue
 
             return cardlist_list_filtered_by_mode
 
