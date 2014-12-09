@@ -35,7 +35,7 @@ def create_cardlist(request):
         cardlist_name = request.POST['cardlist_name']
     except StandardError:
         return redirect('cards:cardlist_index')
-    
+
     if cardlist_name == "":
         message = 'Cannot create a cardlist with empty name. Please type in a name.'
         logger.warning(message)
