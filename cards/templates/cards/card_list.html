@@ -20,6 +20,7 @@
             {% for card in card_list %}
                 <div class="card flip-container fliponclick noselect">
                     <div class="card-helper flipper noselect">
+                        <div class="card_answer back noselect"><div class="valign">{{ card.card_answer }}</div></div>
                         <div class="card_question front noselect">
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
@@ -40,7 +41,7 @@
 
 
                         </div>
-                        <div class="card_answer back noselect"><div class="valign">{{ card.card_answer }}</div></div>
+
                     </div>
                 </div>
             {% endfor %}
@@ -51,22 +52,23 @@
 
         {% if show_newcard %}
 
-            <div class="card newcard noselect">
+            <div class="card flip-container newcard noselect">
                 <div class="card-helper flipper">
                     <form action="{% url 'cards:createcard' cardlist_id %}" method="post">
                         {% csrf_token %}
-                        <div class="card_question front">
-                            <div class="valign">
-                                <textarea class="empty-on-click" rows=1 name="card_question" value="" >add a card</textarea>
-                                <i class="fc-next fa fa-share"></i>
-                            </div>
-                        </div>
                         <div class="card_answer back">
                             <div class="valign">
                                 <textarea class="empty-on-click" rows=1 name="card_answer">answer</textarea>
                                 <button class="small-button fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
                             </div>
                         </div>
+                        <div class="card_question front">
+                            <div class="valign">
+                                <textarea class="empty-on-click" rows=1 name="card_question" value="" >add a card</textarea>
+                                <i class="fc-next fa fa-share"></i>
+                            </div>
+                        </div>
+
                     </form>
                 </div>
             </div>

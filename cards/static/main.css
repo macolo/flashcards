@@ -103,26 +103,27 @@ body {
     margin-top:0.5em;
 }
 .card {
+    display:table;
     font-size:1.9em;
     margin:30px;
     float:left;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
     height:250px;
     width:350px;
-    transition: 1s;
-    -webkit-transition: 1s;
     cursor:pointer;
     /* maannn... http://stackoverflow.com/questions/13620670/prevent-clickable-div-from-being-highlighted-in-android-webview */
     -webkit-tap-highlight-color:transparent;
+}
+
+.card, .card_answer, .card_question {
+    display:table;
+    height:250px;
+    width:350px;
 }
 
 /* this is smaller than a card! We have to shrink the cards */
 @media screen and (max-width: 410px) {
     .card {
         font-size: 6vw;
-        height:214px !important;
-        width:300px !important;
         float:none;
         margin: 15px auto 15px auto;
     }
@@ -132,7 +133,7 @@ body {
         and are not affected by the card's dimensions.
     */
 
-    .card_answer, .card_question {
+    .card, .card_answer, .card_question {
         height:214px !important;
         width:300px !important;
     }
@@ -149,11 +150,6 @@ body {
     color: rgba(0, 0, 0, 0.75);
     box-shadow: 4px 4px 4px rgba(204, 204, 204, 1);
     text-align: center;
-    width: 100%;
-
-    overflow:hidden;
-    height:250px;
-    width:350px;
     /* in case somebody uses aaa/bbb/ccc/ddd... */
     word-break: break-all;
 
@@ -199,52 +195,57 @@ body {
     display:table-cell;
 }
 
-/* entire container, keeps perspective */
 
+/* This works only because of that guy:
+    http://www.cssplay.co.uk/menu/css3-3d-card.html
+*/
 
-.flip-container, .front, .back {
-    display:table;
+.flip-container {
+    position: relative;
 }
 
-/* flip speed goes here */
-.flipper {
-	transition: 1s;
-    -webkit-transition: 1s;
-	transform-style: preserve-3d;
-    -webkit-transform-style: preserve-3d;
-	position: relative;
+.flip-container .back,
+.flip-container .front {
+	position:absolute;
+	left:0;
+	top:0;
+    -webkit-transition: 1s ease-in-out;
+    -moz-transition: 1s ease-in-out;
+    -ms-transition: 1s ease-in-out;
+    -o-transition: 1s ease-in-out;
+    transition: 1s ease-in-out;
 }
 
-/* hide back of pane during swap */
-.front, .back {
+.flip-container .back {
+	-moz-backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
 	backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-	position: absolute;
-	top: 0;
-	left: 0;
+	-moz-transform: perspective(1000px) rotateY(180deg);
+	-webkit-transform: perspective(1000px) rotateY(180deg);
+	transform: perspective(1000px) rotateY(180deg);
 }
 
-/* front pane, placed above back */
-.front {
-	z-index: 2;
-	/* for firefox 31 */
-	transform: rotateY(0deg);
-    -webkit-transform: rotateY(0deg);
+.flip-container .front {
+	-moz-backface-visibility: hidden;
+	-webkit-backface-visibility: hidden;
+	backface-visibility: hidden;
+	-moz-transform: perspective(1000px) rotateY(0deg);
+	-webkit-transform: perspective(1000px) rotateY(0deg);
+	transform: perspective(1000px) rotateY(0deg);
 }
 
-/* back, initially hidden pane */
-.back {
-	transform: rotateY(180deg);
-    -webkit-transform: rotateY(180deg);
+.flip-container.flip .back {
+	-moz-transform: perspective(1000px) rotateY(0);
+	-webkit-transform: perspective(1000px) rotateY(0);
+	transform: perspective(1000px) rotateY(0);
 }
 
-
-/* on click transformation */
-.flip-container.flip .flipper,
-.newcard.flip .flipper {
-	transform: rotateY(180deg);
-    -webkit-transform: rotateY(180deg);
+.flip-container.flip .front {
+	-webkit-transform: perspective(1000px) rotateY(-179.9deg);
+	-moz-transform: perspective(1000px) rotateY(-179.9deg);
+	transform: perspective(1000px) rotateY(-179.9deg);
 }
+
 
 
 .noselect {
