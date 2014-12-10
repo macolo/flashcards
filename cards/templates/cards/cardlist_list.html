@@ -5,8 +5,6 @@
 {% endblock %}
 
 {% block content %}
-
-    {% if cardlist_list %}
         <ul id="cardlist-list">
             {% for cardlist in cardlist_list %}
                 <li class="fa-cardlist-icon">
@@ -22,7 +20,4 @@
                 </form>
             </li>
         </ul>
-    {% else %}
-        <div class="text-content"><p>You haven't got any cardlists.</p></div>
-    {% endif %}
 {% endblock %}

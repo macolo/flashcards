@@ -1,0 +1,29 @@
+{% load backend_utils %}
+{% for sublist in available_backends|social_backends %}
+    <div class="row">
+        {% for name, backend in sublist %}
+            {% associated backend %}
+            {% if association %}
+                <form class="disconnect-form" action="{% url "social:disconnect_individual" backend=association.provider association_id=association.id %}" method="post">{% csrf_token %}
+                    <a class="big-button form-trigger" name="{{ backend|backend_class }}" href="#">
+                        <i class="fa fa-{{ name|icon_name }}"></i>
+                        Disconnect {{ backend|backend_name }}
+                    </a>
+                </form>
+            {% else %}
+                <a class="big-button form-trigger" name="{{ backend|backend_class }}" href="{% url "social:begin" backend=name %}">
+                    <i class="fa fa-{{ name|icon_name }}"></i>
+                    Log in with {{ backend|backend_name }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endfor %}
+<script>
+    $( document ).ready(function() {
+        $('.disconnect-form').on('click', '.form-trigger', function (event) {
+            event.preventDefault();
+            $(event.target).closest('form').submit();
+        });
+    });
+</script>
