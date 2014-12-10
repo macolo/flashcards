@@ -25,6 +25,13 @@ def cardlist_index(request):
     # this includes lists with 'cr' (read and create) and 'crud' (full) access.
     cardlist_list = get_list_of_allowed_cardlists(request, 'r')
 
+    if not cardlist_list.exists():
+        message = "You haven't got access to any shared stacks and haven't created your owns. " \
+                  "Let's create your first stack right now!"
+        logger.debug(request.user.get_username()+" has no stacks.")
+        messages.add_message(request, messages.INFO, message)
+
+
     context = {'cardlist_list': cardlist_list, }
     return render(request, 'cards/cardlist_list.html', context)
 

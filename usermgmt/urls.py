@@ -6,4 +6,9 @@ from usermgmt import views
 # due to django does not accept namespaces in a redirect in django.contrib.auth.views.password_change
 # please see urls.py of the site package
 
+# /accounts/...
+urlpatterns = [
+        url(r'^login/$', views.login, name='login'),
+]
+
 

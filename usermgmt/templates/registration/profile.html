@@ -10,9 +10,12 @@
 {% block content_title %}<h1>Profile</h1>{% endblock %}
 {% block content %}
     <div class="text-content login">
-        <p>Username: {{ user }}</p>
+        <p>Username: {{ user.get_username }}</p>
 
         <a class="big-button" href="{% url 'password_change' %}">Change your password</a>
+
+        {% include 'registration/oauth_buttons.html' %}
     </div>
+
 
 {% endblock %}
