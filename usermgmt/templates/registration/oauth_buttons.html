@@ -13,7 +13,7 @@
             {% else %}
                 <a class="big-button form-trigger" name="{{ backend|backend_class }}" href="{% url "social:begin" backend=name %}">
                     <i class="fa fa-{{ name|icon_name }}"></i>
-                    Log in with {{ backend|backend_name }}
+                    {{ button_action }} {{ backend|backend_name }}
                 </a>
             {% endif %}
         {% endfor %}

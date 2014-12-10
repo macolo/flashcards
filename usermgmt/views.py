@@ -16,13 +16,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.sites.shortcuts import get_current_site
 
-
+from django.shortcuts import redirect
 # Create your views here.
 
 @login_required
 def profile(request):
     context = {
         'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
+        'button_action': 'Connect '
     }
     return render(request, 'registration/profile.html', context)
 
@@ -40,6 +41,11 @@ def login(request, template_name='registration/login.html',
     """
     Displays the login form and handles the login action.
     """
+
+    if request.user.is_authenticated():
+        # we wanna go to somewhere else, like profile
+        return redirect('accounts:profile')
+
     redirect_to = request.POST.get(redirect_field_name,
                                    request.GET.get(redirect_field_name, ''))
 
@@ -66,6 +72,7 @@ def login(request, template_name='registration/login.html',
         'site': current_site,
         'site_name': current_site.name,
         'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
+        'button_action': 'Log in with '
     }
     if extra_context is not None:
         context.update(extra_context)

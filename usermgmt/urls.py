@@ -9,6 +9,7 @@ from usermgmt import views
 # /accounts/...
 urlpatterns = [
         url(r'^login/$', views.login, name='login'),
+        url(r'^profile/$', views.profile, name='profile'),
 ]
 
 
