@@ -129,6 +129,9 @@ LOGGING = {
 
 LOGIN_REDIRECT_URL = "/"
 
+# this is the name for the login page from flashcards/urls.py
+LOGIN_URL = 'accounts:login'
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEBUG_TOOLBAR_CONFIG = {
