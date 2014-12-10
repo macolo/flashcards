@@ -143,7 +143,12 @@ LOGIN_REDIRECT_URL = "cards:cardlist_index"
 # this is the name for the login page from flashcards/urls.py
 LOGIN_URL = 'login'
 
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+# this is the name for the login page from flashcards/urls.py
+LOGIN_URL = 'accounts:login'
+
 
 DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TEMPLATE_CONTEXT': True,
