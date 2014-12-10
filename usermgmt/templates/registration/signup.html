@@ -1,6 +1,34 @@
 {% extends "base.html" %}
+{% load backend_utils %}
 {% block content_title %}<h1>Your Profile</h1>{% endblock %}
 {% block content %}
 
-    {% url 'social:begin' "google-oauth2" %}
+    <div class="text-content signup">
+
+        {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+
+        <form method="post" autocomplete="off" action="{% url 'accounts:login' %}">
+            {% csrf_token %}
+            <div id="username">
+                <span>
+                    {{ form.username.label_tag }}<br />
+                    {{ form.username }}
+                </span>
+            </div>
+            <div id="password">
+                <span>
+                    {{ form.password.label_tag }}<br />
+                    {{ form.password }}
+                </span>
+            </div>
+
+            <button class="big-button" type="submit">Login</button>
+            <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+
+        {% include 'registration/oauth_buttons.html' %}
+    </div>
+
 {% endblock %}
