@@ -13,7 +13,6 @@ urlpatterns = patterns('',
     # https://groups.google.com/forum/#!topic/django-users/tmnDcp8t6WM
     # django does not accept namespaces in a redirect in django.contrib.auth.views.password_change
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name='logout'),
-    url(r'^accounts/profile/$', 'usermgmt.views.profile', name='profile'),
     url(r'^accounts/password_change/$', 'django.contrib.auth.views.password_change', name='password_change'),
     url(r'^accounts/password_change/done/$', 'django.contrib.auth.views.password_change_done', name='password_change_done'),
     url(r'^accounts/password_reset/$', 'django.contrib.auth.views.password_reset', name='password_reset'),
