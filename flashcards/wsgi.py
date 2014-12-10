@@ -15,11 +15,11 @@ activate_env=os.path.expanduser("/opt/virtual_env/flashcards/bin/activate_this.p
 execfile(activate_env, dict(__file__=activate_env))
 
 from django.core.wsgi import get_wsgi_application
-_application = get_wsgi_application()
 
 def application(environ, start_response):
     # pass the WSGI environment variables on through to os.environ
     for key in environ:
         if key.startswith('ME_FLASHCARDS_'):
             os.environ[key] = environ[key]
+    _application = get_wsgi_application()
     return _application(environ, start_response)
