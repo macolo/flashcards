@@ -7,8 +7,13 @@ body {
 }
 
 @media screen and (max-width: 410px) {
-    #content {
+    body {
         margin:0;
+        padding:0;
+    }
+
+    #header {
+        padding:0.5em;
     }
 }
 
