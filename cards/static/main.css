@@ -6,6 +6,10 @@ body {
 #content {
 }
 
+.text-content {
+    padding:0.5em;
+}
+
 @media screen and (max-width: 410px) {
     body {
         margin:0;
@@ -14,6 +18,10 @@ body {
 
     #header {
         padding:0.5em;
+    }
+
+    .text-content {
+        padding:1em;
     }
 }
 
