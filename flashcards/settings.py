@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 """
 Django settings for flashcards project.
 
@@ -27,6 +29,10 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
+APP_NAME = 'flashcards'
+APP_OWNER = u'mercedes español'
+EMAIL_FROM = 'info@mercedes-espanol.ch'
+BASE_URL = os.environ['ME_FLASHCARDS_BASE_URL']
 
 # Application definition
 
