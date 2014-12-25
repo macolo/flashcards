@@ -35,7 +35,7 @@ def profile(request):
     context = {
         'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
         'button_action': 'Connect ',
-        'password_set_or_reset': request.user.has_usable_password(),
+        'password_set': request.user.has_usable_password(),
     }
     return render(request, 'registration/profile.html', context)
 
@@ -184,3 +184,35 @@ def login(request, template_name='registration/login.html',
     return TemplateResponse(request, template_name, context,
                             current_app=current_app)
 
+
+from django.contrib.auth.forms import SetPasswordForm
+
+@login_required()
+def set_password(request):
+
+    # This shows the signup form and displays errors
+    if request.method =='POST':
+        # This form has been filled in by the user
+        form = SetPasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            logger.debug('Set password for '+request.user.email)
+            # Set a message and redirect
+
+            # Django logs the user out after successful password set :( WTF
+            # Crazy hack: http://stackoverflow.com/questions/15192808/django-automatic-login-after-user-registration-1-4
+            request.user.backend = "django.contrib.auth.backends.ModelBackend"
+            auth_login(request, request.user)
+            message = "Your password has been set!"
+            messages.add_message(request, messages.SUCCESS, message)
+            logger.debug(message)
+            return redirect('accounts:profile')
+
+    else:
+        # initial, empty form
+        form = SetPasswordForm(user=request.user)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'registration/password_set_form.html', context)

@@ -36,7 +36,9 @@
 <div id="header">
     <div id="toolbar">
         <div class="header-element">
-            <img id="header-logo" src="{% static 'logo_flashcards-100.png' %}"/>
+            <a href="{% url 'cards:cardlist_index' %}">
+                <img id="header-logo" src="{% static 'logo_flashcards-100.png' %}"/>
+            </a>
         </div>
         {% if user.is_authenticated %}
             <div class="header-element">

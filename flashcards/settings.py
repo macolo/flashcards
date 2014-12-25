@@ -29,8 +29,8 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-APP_NAME = 'flashcards'
-APP_OWNER = u'mercedes español'
+APP_NAME = 'flashCards'
+APP_OWNER = 'mercedes español'
 EMAIL_FROM = 'info@mercedes-espanol.ch'
 BASE_URL = os.environ['ME_FLASHCARDS_BASE_URL']
 
@@ -218,3 +218,10 @@ SOCIAL_AUTH_PIPELINE = (
     # Update the user record with any changed info from the auth service.
     'social.pipeline.user.user_details'
 )
+
+SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
+
+# http://psa.matiasaguirre.net/docs/configuration/settings.html#miscellaneous-settings
+#The user_details pipeline processor will set certain fields on user objects, such as email.
+# Set this to a list of fields you only want to set for newly created users and avoid updating on further logins.
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
