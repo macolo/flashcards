@@ -4,7 +4,6 @@
 {% block content %}
 
     <div class="text-content login">
-
         {% if form.errors %}
             <p>Your username and password didn't match. Please try again.</p>
         {% endif %}
@@ -24,12 +23,15 @@
                 </span>
             </div>
 
-            <button class="big-button" type="submit">Login</button>
+            <button class="big-button" type="submit">Login</button> <a href="{% url 'password_reset' %}">or get a new password</a>
             <input type="hidden" name="next" value="{{ next }}" />
         </form>
 
-        <p><a href="{% url 'password_reset' %}">Reset your password</a></p>
         {% include 'registration/oauth_buttons.html' %}
+
+        <p>Psst! Are you new here?
+            <a class="big-button" href="{% url 'accounts:signup' %}">Sign up for free</a>
+        </p>
     </div>
 
 {% endblock %}
