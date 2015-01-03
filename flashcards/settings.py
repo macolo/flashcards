@@ -226,3 +226,11 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 # Set this to a list of fields you only want to set for newly created users and avoid updating on further logins.
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
 
+
+# Make PSA render its exceptions instead of throwing them
+#LOGIN_ERROR_URL = 'accounts:login'
+
+# needed for python social auth
+MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES +  (
+    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
+)
