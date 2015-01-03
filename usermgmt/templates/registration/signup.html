@@ -1,31 +1,46 @@
 {% extends "base.html" %}
 {% load backend_utils %}
-{% block content_title %}<h1>Your Profile</h1>{% endblock %}
+{% block content_title %}<h1>Sign Up</h1>{% endblock %}
 {% block content %}
 
-    <div class="text-content signup">
+    <div class="text-content login signup">
 
         {% if form.errors %}
-            <p>Your username and password didn't match. Please try again.</p>
+            <p>
+            There was some problem with the input you provided: </p>
+            <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ field.label }}: {{ error|lower }}</li>
+                {% endfor %}
+            {% endfor %}
+
+            </ul>
         {% endif %}
 
-        <form method="post" autocomplete="off" action="{% url 'accounts:login' %}">
+        <form method="post" autocomplete="off" action="{% url 'accounts:signup' %}">
             {% csrf_token %}
-            <div id="username">
+
+             <div id="email">
                 <span>
-                    {{ form.username.label_tag }}<br />
-                    {{ form.username }}
+                    {{ form.email.label_tag }}<br />
+                    {{ form.email }}
                 </span>
             </div>
-            <div id="password">
+            <div id="password1">
                 <span>
-                    {{ form.password.label_tag }}<br />
-                    {{ form.password }}
+                    {{ form.password1.label_tag }}<br />
+                    {{ form.password1 }}
+                </span>
+            </div>
+            <div id="password2">
+                <span>
+                    {{ form.password2.label_tag }}<br />
+                    {{ form.password2 }}
                 </span>
             </div>
 
-            <button class="big-button" type="submit">Login</button>
-            <input type="hidden" name="next" value="{{ next }}" />
+            <button class="big-button" type="submit">Sign Up</button>
         </form>
 
         {% include 'registration/oauth_buttons.html' %}

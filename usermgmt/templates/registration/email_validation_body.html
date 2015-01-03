@@ -1,0 +1,15 @@
+<p>Hi,</p>
+
+<p>We have received a signup from your address {{ user.email }}.
+
+    If you did sign up for flashcards recently, please click on the link below
+    to let us know it's really you:
+</p>
+
+<p>
+    <a href="{{ base_url }}{% url 'accounts:validate_email' code %}">{{ base_url }}{% url 'accounts:validate_email' code %}</a>
+</p>
+
+<p>All the best & looking forward</p>
+
+<p>The Crew</p>
