@@ -228,7 +228,7 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
 
 
 # Make PSA render its exceptions instead of throwing them
-#LOGIN_ERROR_URL = 'accounts:login'
+LOGIN_ERROR_URL = 'accounts:login'
 
 # needed for python social auth
 MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES +  (
