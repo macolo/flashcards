@@ -10,6 +10,9 @@ from usermgmt import views
 urlpatterns = [
         url(r'^login/$', views.login, name='login'),
         url(r'^profile/$', views.profile, name='profile'),
+        url(r'^signup/$', views.signup, name='signup'),
+        url(r'^validate-email/(?P<code>.*)/$', views.validate_email, name='validate_email'),
+        url(r'^set-password/$', views.set_password, name='password_set'),
 ]
 
 

@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 import logging
 
 from django.contrib.auth.models import User, Group

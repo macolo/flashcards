@@ -1,0 +1,9 @@
+Hi
+
+We have received a signup from your address {{ user.email }}. If you did sign up for flashcards recently, please click on the link below to let us know it' really you:
+
+{{ base_url }}{% url 'accounts:validate_email' code %}
+
+All the best & looking forward
+
+The Crew
