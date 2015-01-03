@@ -225,3 +225,4 @@ SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 #The user_details pipeline processor will set certain fields on user objects, such as email.
 # Set this to a list of fields you only want to set for newly created users and avoid updating on further logins.
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
+
