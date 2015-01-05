@@ -4,7 +4,7 @@
 
 {% block header %}
     <div class="header-element">
-        <a href="{% url 'cards:cardlist_index' %}"><i class="fa fa-align-justify"></i> all cardlists</a>
+        <a href="{% url 'cards:cardlist_index' %}"><i class="fa fa-align-justify"></i> all stacks</a>
     </div>
 {% endblock %}
 
@@ -75,11 +75,21 @@
         {% endif %}
     </div>
 
-    {% if show_cardlist_crud %}
+    {% if can_delete %}
         <div class="cardlist-delete-cardlist">
-            <a class="big-button" href="{% url 'cards:deletecardlist' cardlist_id %}">remove this stack</a>
+            <a class="big-button" href="{% url 'cards:deletecardlist' cardlist_id %}">delete this stack (forever)</a>
+        </div>
+    {% else %}
+        <div class="cardlist-delete-cardlist">
+            <a class="big-button" href="{% url 'cards:removecardlist' cardlist_id %}">remove this stack from your list</a>
         </div>
     {% endif %}
+
+      {% if can_share %}
+        <div class="cardlist-share-cardlist">
+            <a class="big-button" href="{% url 'cards:sharecardlist' cardlist_id %}">Share this stack</a>
+        </div>
+      {% endif %}
 
 
     <script>
