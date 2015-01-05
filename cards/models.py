@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
+import uuid
 
 # Create your models here.
 
@@ -19,6 +20,7 @@ class CardList(models.Model):
     owner = models.ForeignKey(User, related_name="owner")
     created_date = models.DateTimeField('date published', auto_now_add=True)
     cards = models.ManyToManyField(Card, related_name="cards", blank=True)
+
 
     def __unicode__(self):
         return self.cardlist_name
@@ -64,3 +66,13 @@ class CardListGroup(models.Model):
     def set_mode_to_crud(self):
         self.mode = self.MODES[2][0]
 
+def generate_random_hash():
+    return uuid.uuid1().hex
+
+class ShareCardList(models.Model):
+    cardlist = models.ForeignKey(CardList)
+    secret = models.CharField(max_length=200,default=generate_random_hash,unique=True)
+    created_date = models.DateTimeField('date published', auto_now_add=True)
+
+    def __unicode__(self):
+        return self.cardlist.cardlist_name

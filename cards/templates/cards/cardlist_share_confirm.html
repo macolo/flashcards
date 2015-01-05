@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>Confirm Import of Stack</h1>{% endblock %}
+
+{% block content %}
+    <div class="text-content login">
+        <p>Do you want to import the stack "{{ cardlist_name }}"?</p>
+        <div class="cardlist-share-cardlist">
+            <a class="big-button" href="{% url 'cards:importcardlistconfirmed' secret %}">Yes, import.</a>
+        </div>
+
+    </div>
+
+
+{% endblock %}

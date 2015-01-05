@@ -10,6 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
+from flashcards import settings
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ logger = logging.getLogger(__name__)
 import datetime
 from django.shortcuts import redirect
 
-from cards.models import CardList, Card, CardListGroup, CardListUser
+from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
 
 
 @login_required
@@ -28,8 +29,8 @@ def cardlist_index(request):
     cardlist_list = get_list_of_allowed_cardlists(request, 'r')
 
     if not cardlist_list.exists():
-        message = "You haven't got access to any shared stacks and haven't created your owns. " \
-                  "Let's create your first stack right now!"
+        message = "You haven't got any card stacks! " \
+                  "How about creating one?"
         logger.debug(request.user.get_username()+" has no stacks.")
         messages.add_message(request, messages.INFO, message)
 
@@ -46,7 +47,7 @@ def create_cardlist(request):
         return redirect('cards:cardlist_index')
 
     if cardlist_name == "":
-        message = 'Cannot create a cardlist with empty name. Please type in a name.'
+        message = 'Cannot create a stack with empty name. Please type in a name.'
         logger.warning(message)
         messages.add_message(request, messages.WARNING, message)
     else:
@@ -106,19 +107,18 @@ def cardlist(request, cardlist_id):
 
     # Flag for the template that decides whether UI for add new card should be visible
     show_newcard = False
-    show_cardlist_crud = False
+    can_delete = False
 
     if is_owner or request.user.is_superuser or request.user.is_staff:
         show_newcard = True
-        show_cardlist_crud = True
+        can_delete = True
 
     if user_and_group_access:
         if user_and_group_access == 'crud':
             show_newcard = True
-            show_cardlist_crud = True
         elif user_and_group_access == 'cr':
             show_newcard = True
-            show_cardlist_crud = False
+
 
     # This gets us all cardlists where a user can read and create cards (and above)
     # This is needed in order to display a list of cardlists the user can copy a card to.
@@ -136,7 +136,8 @@ def cardlist(request, cardlist_id):
                'cardlist_name': cardlist_name,
                'cardlist_id': cardlist_id,
                'show_newcard': show_newcard,
-               'show_cardlist_crud': show_cardlist_crud,
+               'can_delete': can_delete,
+               'can_share' : can_delete,
                'modifiable_cardlists': modifiable_cardlists,
     }
     return render(request, 'cards/card_list.html', context)
@@ -156,6 +157,10 @@ def get_user_and_group_access_level(request, cardlist_id):
     for po in CardListGroup.objects.filter(cardlist__pk=cardlist_id,
                                            groups__in=list(request.user.groups.all())).distinct():
         modes.append(po.mode)
+
+    # If there aren't any access records it means that there is no access at all.
+    if not modes:
+        return False
 
     # Iterates over a list and finds the highest access level
     trumping_access_level = 'r'
@@ -252,10 +257,9 @@ def delete_cardlist(request, cardlist_id):
     else:
         is_owner = False
 
-    user_and_group_access = get_user_and_group_access_level(request, cardlist_id)
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
-    if request.user.is_superuser or request.user.is_staff or is_owner or user_and_group_access == 'crud':
+    if request.user.is_superuser or is_owner:
         messages.add_message(request, messages.INFO, 'The stack has been deleted.')
         cardlist.delete()
     else:
@@ -263,6 +267,118 @@ def delete_cardlist(request, cardlist_id):
 
         # Then redirect to the active cardlist
     return redirect('cards:cardlist_index')
+
+
+@login_required
+def remove_cardlist(request, cardlist_id):
+    """
+    Of course a cardlist can only be removed if it is in the list of the user
+    and that only happens if there is user or group level access, or the user is the owner of the cardlist
+    :param request:
+    :param cardlist_id:
+    :return:
+    """
+
+    cardlist = CardList.objects.get(id=cardlist_id)
+    clgs = CardListGroup.objects.filter(groups__in=list(request.user.groups.all()),cardlist_id=cardlist_id)
+    clus = CardListUser.objects.filter(users__exact=request.user.id,cardlist_id=cardlist_id)
+
+    if request.user.is_staff or request.user.is_superuser:
+        message = "Sorry, as a staff member you're damned to see everything. With great power comes great responsibility."
+        messages.add_message(request, messages.WARNING, message)
+        logger.debug(message)
+
+    if cardlist.owner.pk == request.user.id:
+        # The owner cannot remove his stacks from his list
+        message = 'You cannot remove a stack of cards from your stacks if you are its owner.'
+        messages.add_message(request, messages.WARNING, message)
+        logger.debug(message)
+
+    if clgs:
+        # We have group access and can' do anything about it
+        # Let' delete user access just in case, so the group access could be removed manually
+        clus.delete()
+        message = "You have access to this list through your membership to the group(s) "+\
+                  ', '.join([clg.groups.name for clg in clgs])\
+                  +". As long as you maintain this membership we cannot remove this stack."
+        messages.add_message(request, messages.WARNING, message)
+        logger.debug(message)
+
+    if clus:
+        # Finally we can work with user access and remove the user
+        # There should only be one entry but you can never be sure
+        clus.delete()
+        message = "You won't be troubled again by this stack. We have removed it from your stacks."
+        messages.add_message(request, messages.WARNING, message)
+        logger.debug(message)
+        # redirect to the cardlist index
+        return redirect('cards:cardlist_index')
+
+    # Then redirect to the active cardlist
+    return redirect('cards:cardlist', cardlist_id)
+
+
+@login_required
+def share_cardlist(request, cardlist_id):
+    cardlist = CardList.objects.get(id=cardlist_id)
+    scl = ShareCardList.objects.filter(cardlist_id=cardlist_id)
+    if scl:
+        secret = scl[0].secret
+    else:
+        scl = ShareCardList(cardlist=cardlist)
+        scl.save()
+        secret = scl.secret
+    context = {
+        'base_url': settings.BASE_URL,
+        'secret': secret,
+        'cardlist_id': cardlist_id,
+    }
+    return render(request, 'cards/cardlist_share.html', context)
+
+@login_required
+def import_cardlist(request, secret):
+    # Find out which cardlist is to be imported, there should be only one as per model
+    # We need the name anyway
+    scl = ShareCardList.objects.get(secret=secret)
+    context = {
+        "secret": secret,
+        "cardlist_name": scl.cardlist.cardlist_name,
+    }
+    return render(request, 'cards/cardlist_share_confirm.html', context)
+
+@login_required
+def import_cardlist_confirmed(request, secret):
+    """
+    We have to drag the secret along
+    :param request:
+    :param cardlist_id:
+    :param secret:
+    :return:
+    """
+
+    scl = ShareCardList.objects.get(secret=secret)
+
+    # Is there already a user access set?
+    access = get_user_and_group_access_level(request, scl.cardlist.id)
+    # existing_clu = CardListUser.objects.filter(users=request.user, cardlist=scl.cardlist)
+
+    if access:
+        # Set a message to confirm
+        message = 'You already have access to "'+scl.cardlist.cardlist_name+'".'
+        messages.add_message(request, messages.SUCCESS, message)
+        logger.debug(message)
+    else:
+        # Now add user level access to this cardlist, in read only mode
+        clu = CardListUser(users=request.user,cardlist=scl.cardlist,mode='r')
+        clu.save()
+
+        # Set a message to confirm
+        message = 'The stack  "'+scl.cardlist.cardlist_name+'" has been added to your stacks.'
+        messages.add_message(request, messages.SUCCESS, message)
+        logger.debug(message)
+
+    # Then redirect to the active cardlist
+    return redirect('cards:cardlist', scl.cardlist.id)
 
 
 @login_required
