@@ -76,3 +76,18 @@ class ShareCardList(models.Model):
 
     def __unicode__(self):
         return self.cardlist.cardlist_name
+
+
+class CardLog(models.Model):
+    ACTIONS = (('added', 'added'), ('removed', 'removed'), ('updated', 'updated'), ('created', 'created'))
+
+    created_date = models.DateTimeField('date published', auto_now_add=True)
+    card = models.ForeignKey(Card)
+    action = models.CharField(max_length=200, choices=ACTIONS)
+    cardlist = models.ForeignKey(CardList)
+    user = models.ForeignKey(User)
+
+
+    def __unicode__(self):
+        action = dict(self.ACTIONS).get(self.action)
+        return self.user.username +' '+action+' '+self.card.card_question+' in '+self.cardlist.cardlist_name

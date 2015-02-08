@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from django.contrib import admin
 
-from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
+from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList, CardLog
 
 # Manage cards
 class CardAdmin(admin.ModelAdmin):
@@ -46,3 +46,5 @@ class CardListAdmin(admin.ModelAdmin):
 admin.site.register(CardList, CardListAdmin)
 
 admin.site.register(ShareCardList)
+
+admin.site.register(CardLog)

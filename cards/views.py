@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 import datetime
 from django.shortcuts import redirect
 
-from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
+from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList, CardLog
 
 
 @login_required
@@ -211,6 +211,8 @@ def create_card(request, cardlist_id):
         newcard.save()
     current_cardlist.cards.add(newcard)
     messages.add_message(request, messages.SUCCESS, 'Your card has been added to this stack!')
+    # Log this for notifications
+    CardLog(user=request.user, card=newcard, action='added', cardlist=current_cardlist).save()
 
     # Then redirect to the active cardlist
     return redirect('cards:cardlist', cardlist_id)
@@ -428,3 +430,13 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
 @login_required
 def card(request):
     pass
+
+@login_required
+def notifications_list(request):
+    # Get all cardlists the user has access to
+
+    # Get log entries for those lists for timestamps more than 60 minutes ago and limit to 10
+
+    # implode multiple subsequent actions per cardlist and count / concatenate card names
+    pass
+

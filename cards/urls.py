@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^(?P<cardlist_id>[0-9]+)/share$', views.share_cardlist, name='sharecardlist'),
     url(r'^import/(?P<secret>[0-9a-z]+)$', views.import_cardlist, name='importcardlist'),
     url(r'^import/(?P<secret>[0-9a-z]+)/done$', views.import_cardlist_confirmed, name='importcardlistconfirmed'),
+    url(r'^notifications$', views.notifications_list, name='notificationslist'),
 ]
