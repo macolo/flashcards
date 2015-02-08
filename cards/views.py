@@ -390,7 +390,7 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
     :return: a list of cardlist
     """
 
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_superuser:
         cardlist_list = CardList.objects.all()
         return cardlist_list
     else:
