@@ -126,10 +126,12 @@ def cardlist(request, cardlist_id):
 
     # remove active cardlist
     modifiable_cardlists = []
+    modifiable = False
     for cl in _modifiable_cardlists:
         if cl.id != cardlist_id:
             modifiable_cardlists.append(cl)
-
+        else:
+            modifiable = True
 
 
     context = {'card_list': cards,
@@ -138,6 +140,7 @@ def cardlist(request, cardlist_id):
                'show_newcard': show_newcard,
                'can_delete': can_delete,
                'can_share' : can_delete,
+               'modifiable': modifiable,
                'modifiable_cardlists': modifiable_cardlists,
     }
     return render(request, 'cards/card_list.html', context)
