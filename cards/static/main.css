@@ -207,6 +207,7 @@ body {
 .valign {
     vertical-align:middle;
     display:table-cell;
+    width:100%;
 }
 
 
@@ -396,6 +397,24 @@ whether a card has been created <24 hours ('NEW') */
 
 .card-save-actions > div:hover {
    color: rgba(150, 150, 150, 1);
+}
+
+div:focus {outline:0;}
+/*
+prevent blue border on contenteditable
+http://stackoverflow.com/questions/20340138/remove-blue-border-from-css-custom-styled-button-in-chrome
+*/
+
+/* a fix for firefox contenteditable text selection
+
+ and Safari
+ http://stackoverflow.com/questions/20823468/user-selectnone-breaking-safari-contenteditable
+
+ */
+
+div[contenteditable=true] {
+    -moz-user-select: text;
+    -webkit-user-select : text;
 }
 
 /* the messages on top below the view title that are fed from django.utils.messages */

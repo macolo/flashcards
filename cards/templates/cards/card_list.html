@@ -24,12 +24,11 @@
                              <div class="card-actions">
                                     <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
                              </div>
-                            <div class="valign">{{ card.card_answer }}
-                                    <div class="card-save-actions">
+                            <div class="valign">{{ card.card_answer }}</div>
+                                    <div class="card-save-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
                                 </div>
-                            </div>
                         </div>
                         <div class="card-side card_question front noselect">
                             {% ifequal card.is_new True %}
@@ -49,13 +48,11 @@
                                     </div>
                                 </div>
                             {% endif %}
-                            <div class="valign">{{ card.card_question }}
-                                <div class="card-save-actions">
+                            <div class="valign">{{ card.card_question }}</div>
+                                <div class="card-save-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
                                 </div>
-                            </div>
-
 
                         </div>
 
@@ -110,6 +107,34 @@
 
     <script>
         $( document ).ready(function() {
+
+            // initialise flashcards namespace
+            window.flashcards = {};
+
+            window.flashcards.toggle_card_to_edit_mode = function(el) {
+                var cardside = jQuery(el).parents('.card-side')[0];
+
+                var card_controls = jQuery(cardside).find('.card-save-actions')[0];
+                jQuery(card_controls).toggle();
+
+                // make answer and question contenteditable
+                var text_el = jQuery(cardside).find('.valign');
+
+                // store current answer or question
+                var text_content = jQuery(text_el).text();
+                jQuery(text_el).attr('data-content', text_content);
+
+                // toggle contenteditable
+                if (text_el.attr('contenteditable') == '' || text_el.attr('contenteditable') == 'true' ) {
+                    text_el.attr('contenteditable','false');
+                } else {
+                    text_el.attr('contenteditable','true');
+                }
+                text_el.toggleClass('non-flippable');
+
+                // this only has an effect if the card is switched into edit mode.
+                text_el.focus();
+            }
 
             // as per https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/#ajax
             function getCookie(name) {
@@ -192,41 +217,40 @@
             // this shows the save / cancel button on a click on edit for a specific card and makes text editable
             jQuery('.edit-card').on('click', function(e) {
                 // toggle controls
-                var card = jQuery(this).parents('.card-side')[0];
-                var card_controls = jQuery(card).find('.card-save-actions')[0];
-                jQuery(card_controls).toggle();
+                var target = this;
+                window.flashcards.toggle_card_to_edit_mode(target);
 
-                // make answer and question contenteditable
-                var text = jQuery(card).find('.valign');
-                // toggle contenteditable
-                if (text.attr('contenteditable') == '' || text.attr('contenteditable') == 'true' ) {
-                    text.attr('contenteditable','false');
-                } else {
-                    text.attr('contenteditable','true');
-                }
-                text.toggleClass('non-flippable');
-                text.focus();
+            });
+
+            // this resets question / answer and toggles the card into view mode on clicking the abort button
+            jQuery('.card-abort').on('click', function(e) {
+                var target = this;
+                var cardside = jQuery(this).parents('.card-side')[0];
+                var text_el = jQuery(cardside).find('.valign');
+                var text_content = jQuery(text_el).attr('data-content');
+                jQuery(text_el).text(text_content);
+                window.flashcards.toggle_card_to_edit_mode(target);
             });
 
             // this will send the udpated answer / question of the active card to the server
             jQuery('.card-save').on('click', function(e) {
+                var target = this;
                 // retrieve answer and question
-                var card = jQuery(this).parents('.card')[0];
-                var cardside = jQuery(this).parents('.card-side')[0];
+                var card = jQuery(target).parents('.card')[0];
+                var cardside = jQuery(target).parents('.card-side')[0];
                 var answer = jQuery(card).find('.card_answer .valign').text();
                 var question = jQuery(card).find('.card_question .valign').text();
 
                 var data = {
                     'answer' : answer.trim(),
                     'question': question.trim()
-                }
+                };
 
                 // retrieve data url
-                var data_url = jQuery(this).attr('data-url');
+                var data_url = jQuery(target).attr('data-url');
                 jQuery.post(data_url, data, function() {
-                    jQuery(cardside).find('.edit-card').trigger('click');
+                    window.flashcards.toggle_card_to_edit_mode(target);
                 })
-
 
             })
 
