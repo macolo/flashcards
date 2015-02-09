@@ -22,13 +22,17 @@
                     <div class="card-helper flipper noselect">
                         <div class="card-side card_answer back noselect">
                              <div class="card-actions">
+                                 {% if modifiable_cardlists %}
                                     <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                                 {% endif %}
                              </div>
                             <div class="valign">{{ card.card_answer }}</div>
+                            {% if modifiable_cardlists %}
                                     <div class="card-save-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
                                 </div>
+                            {% endif %}
                         </div>
                         <div class="card-side card_question front noselect">
                             {% ifequal card.is_new True %}
@@ -49,10 +53,12 @@
                                 </div>
                             {% endif %}
                             <div class="valign">{{ card.card_question }}</div>
+                            {% if modifiable_cardlists %}
                                 <div class="card-save-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
                                 </div>
+                            {% endif %}
 
                         </div>
 
