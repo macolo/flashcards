@@ -49,6 +49,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'debug_toolbar',
     'cards',
+    'compressor',
 
 )
 
@@ -103,6 +104,9 @@ STATIC_URL = '/flashcards/static/'
 
 # where static files will be copied to
 STATIC_ROOT = '/var/www/flashcards/static/'
+
+# where static files will be copied to
+STATIC_ROOT = ''
 
 LOGGING = {
     'disable_existing_loggers': False,
@@ -249,4 +253,10 @@ LOGIN_ERROR_URL = 'accounts:login'
 # needed for python social auth
 MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES +  (
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
+)
+
+COMPRESS_ENABLED = not DEBUG
+
+STATICFILES_FINDERS = settings.STATICFILES_FINDERS + (
+    'compressor.finders.CompressorFinder',
 )

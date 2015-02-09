@@ -57,6 +57,7 @@ docs/_build/
 
 # Static
 /static/
+/CACHE/
 
 # Other
 credentials.json
