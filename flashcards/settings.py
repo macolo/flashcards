@@ -105,9 +105,6 @@ STATIC_URL = '/flashcards/static/'
 # where static files will be copied to
 STATIC_ROOT = '/var/www/flashcards/static/'
 
-# where static files will be copied to
-STATIC_ROOT = ''
-
 LOGGING = {
     'disable_existing_loggers': False,
     'version': 1,
