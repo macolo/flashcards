@@ -18,27 +18,41 @@
 
 
             {% for card in card_list %}
-                <div class="card flip-container fliponclick noselect">
+                <div class="card flip-container fliponclick noselect" data-id="{{ card.id }}">
                     <div class="card-helper flipper noselect">
-                        <div class="card_answer back noselect"><div class="valign">{{ card.card_answer }}</div></div>
-                        <div class="card_question front noselect">
+                        <div class="card-side card_answer back noselect">
+                             <div class="card-actions">
+                                    <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                             </div>
+                            <div class="valign">{{ card.card_answer }}</div>
+                                    <div class="card-save-actions non-flippable">
+                                    <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
+                                    <div class="card-abort"><i class="fa fa-times"></i></div>
+                                </div>
+                        </div>
+                        <div class="card-side card_question front noselect">
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
                             {% if modifiable_cardlists %}
-                                <div class="copyto-cardlist non-flippable"><i class="small-button fa fa-files-o"></i></div>
-                                <div class="copyto-cardlist-list non-flippable">
-
-                                    <p>Copy this card into:</p>
-                                    <ul>
-                                        {% for cardlist in modifiable_cardlists %}
-                                            <li class="fa-cardlist-icon"><a href="{% url 'cards:copycardto' cardlist_id card.id cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
-                                        {% endfor %}
-                                    </ul>
+                                <div class="card-actions">
+                                    <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                                    <div class="copyto-cardlist non-flippable"><i class="small-button fa fa-files-o"></i></div>
+                                    <div class="copyto-cardlist-list non-flippable">
+                                        <p>Copy this card into:</p>
+                                        <ul>
+                                            {% for cardlist in modifiable_cardlists %}
+                                                <li class="fa-cardlist-icon"><a href="{% url 'cards:copycardto' cardlist_id card.id cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
                                 </div>
                             {% endif %}
                             <div class="valign">{{ card.card_question }}</div>
-
+                                <div class="card-save-actions non-flippable">
+                                    <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
+                                    <div class="card-abort"><i class="fa fa-times"></i></div>
+                                </div>
 
                         </div>
 
@@ -56,13 +70,13 @@
                 <div class="card-helper flipper">
                     <form action="{% url 'cards:createcard' cardlist_id %}" method="post">
                         {% csrf_token %}
-                        <div class="card_answer back">
+                        <div class="card-side card_answer back">
                             <div class="valign">
                                 <textarea class="empty-on-click" rows=1 name="card_answer">answer</textarea>
                                 <button class="small-button fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
                             </div>
                         </div>
-                        <div class="card_question front">
+                        <div class="card-side card_question front">
                             <div class="valign">
                                 <textarea class="empty-on-click" rows=1 name="card_question" value="" >add a card</textarea>
                                 <i class="fc-next fa fa-share"></i>
@@ -93,33 +107,151 @@
 
     <script>
         $( document ).ready(function() {
+
+            // initialise flashcards namespace
+            window.flashcards = {};
+
+            window.flashcards.toggle_card_to_edit_mode = function(el) {
+                var cardside = jQuery(el).parents('.card-side')[0];
+
+                var card_controls = jQuery(cardside).find('.card-save-actions')[0];
+                jQuery(card_controls).toggle();
+
+                // make answer and question contenteditable
+                var text_el = jQuery(cardside).find('.valign');
+
+                // store current answer or question
+                var text_content = jQuery(text_el).text();
+                jQuery(text_el).attr('data-content', text_content);
+
+                // toggle contenteditable
+                if (text_el.attr('contenteditable') == '' || text_el.attr('contenteditable') == 'true' ) {
+                    text_el.attr('contenteditable','false');
+                } else {
+                    text_el.attr('contenteditable','true');
+                }
+                text_el.toggleClass('non-flippable');
+
+                // this only has an effect if the card is switched into edit mode.
+                text_el.focus();
+            }
+
+            // as per https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/#ajax
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            function sameOrigin(url) {
+                // test that a given url is a same-origin URL
+                // url could be relative or scheme relative or absolute
+                var host = document.location.host; // host + port
+                var protocol = document.location.protocol;
+                var sr_origin = '//' + host;
+                var origin = protocol + sr_origin;
+                // Allow absolute or scheme relative URLs to same origin
+                return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                        (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                    // or any other URL that isn't scheme relative or absolute i.e relative.
+                        !(/^(\/\/|http:|https:).*/.test(url));
+            }
+            jQuery.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
+                        // Send the token to same-origin, relative URLs only.
+                        // Send the token only if the method warrants CSRF protection
+                        // Using the CSRFToken value acquired earlier
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            // this flips the card between question and answer
             jQuery('.fliponclick').on('click', function(e) {
                 var target = jQuery(e.target);
-                //console.log(target.attr('class'))
-                //console.log(jQuery(target).parents('.non-flippable'))
                 if ( !(jQuery(target).hasClass('non-flippable') || jQuery(target).parents('.non-flippable')[0])) {
                     jQuery(this).toggleClass('flip');
                 }
             });
 
+            // this flips the wizard for creating a new card to the answer input
             jQuery('.fc-next').on('click',  function(e) {
                 jQuery(this).parents('.newcard').toggleClass('flip');
             });
 
+            // this adapts the size of the textareas for answer and questions to the text it contains
             $('textarea').on('keyup', function() {
                 $(this).css('height', 'auto').height($(this).prop('scrollHeight'));
             });
 
-            // make the overlay and show the list
+            // make the overlay and show the list for copying cards to other cardlists
             jQuery('.copyto-cardlist').on('click', function(e) {
                 jQuery('.overlay').fadeIn();
                 var content = jQuery(this).siblings('.copyto-cardlist-list').html();
                 jQuery('#modal').html(content).fadeIn();
             });
 
+            // this fades the overlay out on a click on the modal background
             jQuery('.overlay').on('click', function(e) {
                 jQuery(this).fadeOut();
                 jQuery('#modal').fadeOut();
+            });
+
+            // this shows the save / cancel button on a click on edit for a specific card and makes text editable
+            jQuery('.edit-card').on('click', function(e) {
+                // toggle controls
+                var target = this;
+                window.flashcards.toggle_card_to_edit_mode(target);
+
+            });
+
+            // this resets question / answer and toggles the card into view mode on clicking the abort button
+            jQuery('.card-abort').on('click', function(e) {
+                var target = this;
+                var cardside = jQuery(this).parents('.card-side')[0];
+                var text_el = jQuery(cardside).find('.valign');
+                var text_content = jQuery(text_el).attr('data-content');
+                jQuery(text_el).text(text_content);
+                window.flashcards.toggle_card_to_edit_mode(target);
+            });
+
+            // this will send the udpated answer / question of the active card to the server
+            jQuery('.card-save').on('click', function(e) {
+                var target = this;
+                // retrieve answer and question
+                var card = jQuery(target).parents('.card')[0];
+                var cardside = jQuery(target).parents('.card-side')[0];
+                var answer = jQuery(card).find('.card_answer .valign').text();
+                var question = jQuery(card).find('.card_question .valign').text();
+
+                var data = {
+                    'answer' : answer.trim(),
+                    'question': question.trim()
+                };
+
+                // retrieve data url
+                var data_url = jQuery(target).attr('data-url');
+                jQuery.post(data_url, data, function() {
+                    window.flashcards.toggle_card_to_edit_mode(target);
+                })
+
             })
 
         });
