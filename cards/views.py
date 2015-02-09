@@ -5,7 +5,7 @@ import logging
 from django.contrib.auth.models import User, Group
 from django.shortcuts import get_object_or_404, render
 from django.http import Http404
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.utils import timezone
@@ -390,7 +390,7 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
     :return: a list of cardlist
     """
 
-    if request.user.is_superuser or request.user.is_staff:
+    if request.user.is_superuser:
         cardlist_list = CardList.objects.all()
         return cardlist_list
     else:
@@ -423,6 +423,29 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
                     continue
 
             return cardlist_list_filtered_by_mode
+
+@login_required
+def update_card(request, card_id):
+    # this is a async endpoint
+    # meaning it does not return any rendered HTML
+    if request.method =='POST':
+        try:
+            question = request.POST['question']
+            answer = request.POST['answer']
+        except KeyError:
+            return HttpResponseServerError()
+
+        card = Card.objects.get(pk=card_id)
+        card.card_question = question
+        card.card_answer = answer
+        card.save()
+
+        # all ok
+        return HttpResponse()
+
+
+    else:
+        return HttpResponseServerError()
 
 
 @login_required
