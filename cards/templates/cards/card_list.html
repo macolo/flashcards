@@ -22,12 +22,12 @@
                     <div class="card-helper flipper noselect">
                         <div class="card-side card_answer back noselect">
                              <div class="card-actions">
-                                 {% if modifiable_cardlists %}
+                                 {% if modifiable %}
                                     <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
                                  {% endif %}
                              </div>
                             <div class="valign">{{ card.card_answer }}</div>
-                            {% if modifiable_cardlists %}
+                            {% if modifiable %}
                                     <div class="card-save-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
@@ -38,7 +38,7 @@
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
-                            {% if modifiable_cardlists %}
+                            {% if modifiable %}
                                 <div class="card-actions">
                                     <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
                                     <div class="copyto-cardlist non-flippable"><i class="small-button fa fa-files-o"></i></div>
@@ -53,7 +53,7 @@
                                 </div>
                             {% endif %}
                             <div class="valign">{{ card.card_question }}</div>
-                            {% if modifiable_cardlists %}
+                            {% if modifiable %}
                                 <div class="card-save-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
