@@ -452,5 +452,23 @@ def update_card(request, card_id):
 
 
 @login_required
+def remove_card(request, cardlist_id, card_id):
+    try:
+        card = Card.objects.get(pk=card_id)
+    except Card.DoesNotExist:
+        return HttpResponseServerError()
+
+    try:
+        cardlist = CardList.objects.get(pk=cardlist_id)
+    except CardList.DoesNotExist:
+        return HttpResponseServerError()
+
+    # we don't want to delete here since the card might also be part of other cardlists (dooh!)
+    cardlist.cards.remove(card)
+
+    return HttpResponse()
+
+
+@login_required
 def card(request):
     pass

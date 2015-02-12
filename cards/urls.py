@@ -16,4 +16,5 @@ urlpatterns = [
     url(r'^import/(?P<secret>[0-9a-z]+)$', views.import_cardlist, name='importcardlist'),
     url(r'^import/(?P<secret>[0-9a-z]+)/done$', views.import_cardlist_confirmed, name='importcardlistconfirmed'),
     url(r'^(?P<card_id>[0-9]+)/updatecard$', views.update_card, name='updatecard'),
+    url(r'^(?P<cardlist_id>[0-9]+)/removecard/(?P<card_id>[0-9]+)$', views.remove_card, name='removecard'),
 ]
