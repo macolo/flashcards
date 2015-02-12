@@ -374,28 +374,31 @@ whether a card has been created <24 hours ('NEW') */
 }
 
 
-.copyto-cardlist-list {
+.card-copy-actions {
     display:none;
 }
 
 
-.card-save-actions {
+.card-edit-actions,
+.card-delete-actions {
     position:absolute;
     bottom:0;
     right:0;
-    padding:10px;
+    padding:15px;
     color: rgba(150, 150, 150, 0.7);
-    font-size:17px;
+    font-size:20px;
     display:none;
 }
 
-.card-save-actions > div {
+.card-edit-actions > div,
+.card-delete-actions > div {
     float:right;
-    margin-left:5px;
+    margin-left:15px;
     cursor: pointer;
 }
 
-.card-save-actions > div:hover {
+.card-edit-actions > div:hover,
+.card-delete-actions > div:hover {
    color: rgba(150, 150, 150, 1);
 }
 

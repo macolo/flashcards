@@ -23,12 +23,12 @@
                         <div class="card-side card_answer back noselect">
                              <div class="card-actions">
                                  {% if modifiable %}
-                                    <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                                    <div class="card-edit non-flippable"><i class="small-button fa fa-pencil"></i></div>
                                  {% endif %}
                              </div>
                             <div class="valign">{{ card.card_answer }}</div>
                             {% if modifiable %}
-                                    <div class="card-save-actions non-flippable">
+                                    <div class="card-edit-actions non-flippable">
                                     <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
                                     <div class="card-abort"><i class="fa fa-times"></i></div>
                                 </div>
@@ -40,9 +40,10 @@
                             {% endifequal %}
                             {% if modifiable %}
                                 <div class="card-actions">
-                                    <div class="edit-card non-flippable"><i class="small-button fa fa-pencil"></i></div>
-                                    <div class="copyto-cardlist non-flippable"><i class="small-button fa fa-files-o"></i></div>
-                                    <div class="copyto-cardlist-list non-flippable">
+                                    <div class="card-edit non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                                    <div class="card-copy non-flippable"><i class="small-button fa fa-files-o"></i></div>
+                                    <div class="card-delete non-flippable"><i class="small-button fa fa-trash-o"></i></div>
+                                    <div class="card-copy-actions non-flippable">
                                         <p>Copy this card into:</p>
                                         <ul>
                                             {% for cardlist in modifiable_cardlists %}
@@ -54,9 +55,13 @@
                             {% endif %}
                             <div class="valign">{{ card.card_question }}</div>
                             {% if modifiable %}
-                                <div class="card-save-actions non-flippable">
-                                    <div class="card-save" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
-                                    <div class="card-abort"><i class="fa fa-times"></i></div>
+                                <div class="card-edit-actions non-flippable">
+                                    <div class="card-edit-confirm" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
+                                    <div class="card-edit-abort"><i class="fa fa-times"></i></div>
+                                </div>
+                                <div class="card-delete-actions non-flippable">
+                                    <div class="card-delete-confirm" data-url="{% url 'cards:removecard' cardlist_id card.id %}"><i class="fa fa-trash-o"></i></div>
+                                    <div class="card-delete-abort"><i class="fa fa-times"></i></div>
                                 </div>
                             {% endif %}
 
@@ -120,7 +125,7 @@
             window.flashcards.toggle_card_to_edit_mode = function(el) {
                 var cardside = jQuery(el).parents('.card-side')[0];
 
-                var card_controls = jQuery(cardside).find('.card-save-actions')[0];
+                var card_controls = jQuery(cardside).find('.card-edit-actions')[0];
                 jQuery(card_controls).toggle();
 
                 // make answer and question contenteditable
@@ -140,7 +145,11 @@
 
                 // this only has an effect if the card is switched into edit mode.
                 text_el.focus();
-            }
+            };
+
+            window.flashcards.remove_card = function(card) {
+                jQuery(card).fadeOut().remove();
+            };
 
             // as per https://docs.djangoproject.com/en/1.4/ref/contrib/csrf/#ajax
             function getCookie(name) {
@@ -207,10 +216,13 @@
                 $(this).css('height', 'auto').height($(this).prop('scrollHeight'));
             });
 
+
+            // COPY CARD
+
             // make the overlay and show the list for copying cards to other cardlists
-            jQuery('.copyto-cardlist').on('click', function(e) {
+            jQuery('.card-copy').on('click', function(e) {
                 jQuery('.overlay').fadeIn();
-                var content = jQuery(this).siblings('.copyto-cardlist-list').html();
+                var content = jQuery(this).siblings('.card-copy-actions').html();
                 jQuery('#modal').html(content).fadeIn();
             });
 
@@ -220,8 +232,11 @@
                 jQuery('#modal').fadeOut();
             });
 
+
+            // EDIT CARD
+
             // this shows the save / cancel button on a click on edit for a specific card and makes text editable
-            jQuery('.edit-card').on('click', function(e) {
+            jQuery('.card-edit').on('click', function(e) {
                 // toggle controls
                 var target = this;
                 window.flashcards.toggle_card_to_edit_mode(target);
@@ -229,17 +244,17 @@
             });
 
             // this resets question / answer and toggles the card into view mode on clicking the abort button
-            jQuery('.card-abort').on('click', function(e) {
+            jQuery('.card-edit-abort').on('click', function(e) {
                 var target = this;
-                var cardside = jQuery(this).parents('.card-side')[0];
+                var cardside = jQuery(target).parents('.card-side')[0];
                 var text_el = jQuery(cardside).find('.valign');
                 var text_content = jQuery(text_el).attr('data-content');
                 jQuery(text_el).text(text_content);
                 window.flashcards.toggle_card_to_edit_mode(target);
             });
 
-            // this will send the udpated answer / question of the active card to the server
-            jQuery('.card-save').on('click', function(e) {
+            // this will send the updated answer / question of the active card to the server
+            jQuery('.card-edit-confirm').on('click', function(e) {
                 var target = this;
                 // retrieve answer and question
                 var card = jQuery(target).parents('.card')[0];
@@ -258,7 +273,43 @@
                     window.flashcards.toggle_card_to_edit_mode(target);
                 })
 
-            })
+            });
+
+
+
+            // DELETE CARD
+
+            // this shows the delete / abort actions
+            jQuery('.card-delete').on('click', function(e) {
+                // toggle controls
+                var target = this;
+                var cardside = jQuery(target).parents('.card-side')[0];
+
+                var card_controls = jQuery(cardside).find('.card-delete-actions')[0];
+                jQuery(card_controls).toggle();
+            });
+
+            // close the actions menu for remove card
+            jQuery('.card-delete-abort').on('click', function(e) {
+                var target = this;
+                var cardside = jQuery(target).parents('.card-side')[0];
+                var card_controls = jQuery(cardside).find('.card-delete-actions')[0];
+                jQuery(card_controls).toggle();
+            });
+
+            // this will send the card delete request to the server
+            jQuery('.card-delete-confirm').on('click', function(e) {
+                var target = this;
+                // retrieve answer and question
+                var card = jQuery(target).parents('.card')[0];
+
+                // retrieve data url
+                var data_url = jQuery(target).attr('data-url');
+                jQuery.get(data_url, function() {
+                    window.flashcards.remove_card(card);
+                })
+
+            });
 
         });
 
