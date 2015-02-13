@@ -354,6 +354,14 @@ whether a card has been created <24 hours ('NEW') */
     left:5px;
 }
 
+.card-created-date {
+    color: #cacaca;
+    font-size:10px;
+    position:absolute;
+    bottom:5px;
+    left:5px;
+}
+
 .card-actions {
     position:absolute;
     top:0;

@@ -35,6 +35,7 @@
                             {% endif %}
                         </div>
                         <div class="card-side card_question front noselect">
+                            <div class="card-created-date"><time datetime="{{card.created_date|date:"c"}}">{{card.created_date|date}}</time></div>
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
