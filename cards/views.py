@@ -31,9 +31,8 @@ def cardlist_index(request):
     if not cardlist_list.exists():
         message = "You haven't got any card stacks! " \
                   "How about creating one?"
-        logger.debug(request.user.get_username()+" has no stacks.")
+        logger.debug(request.user.get_username() + " has no stacks.")
         messages.add_message(request, messages.INFO, message)
-
 
     context = {'cardlist_list': cardlist_list, }
     return render(request, 'cards/cardlist_list.html', context)
@@ -64,7 +63,6 @@ def create_cardlist(request):
 
 @login_required
 def cardlist(request, cardlist_id):
-
     # hmm django checks arguments in as strings, however this needs to be compared to a number in the template later on
     cardlist_id = int(cardlist_id)
 
@@ -133,13 +131,12 @@ def cardlist(request, cardlist_id):
         else:
             modifiable = True
 
-
     context = {'card_list': cards,
                'cardlist_name': cardlist_name,
                'cardlist_id': cardlist_id,
                'show_newcard': show_newcard,
                'can_delete': can_delete,
-               'can_share' : can_delete,
+               'can_share': can_delete,
                'modifiable': modifiable,
                'modifiable_cardlists': modifiable_cardlists,
     }
@@ -196,30 +193,34 @@ def create_card(request, cardlist_id):
     # if the question exists in db however is not added yet to the card list, add that one
     # if the question exists in db and is already added to the card list, do nothing
 
-    existing_card_in_db = Card.objects.filter(card_question=question)
+    # above reflections are ok in case we want to work in the Card list in the django admin and avoid duplicates
+    # however the problem is that now users can edit a card. Imagine somebody creating a card that already exists
+    # in the database, it' not created anew and the user has now edit access to it. On editing it, the card is also
+    # updated in the stack where it was originally created (db-wise).
+
+    # This is a potential security issue since a malicious user could 'brute force' flashcards and basically
+    # 'destroy' all the cards
+
     existing_card_in_cardlist = current_cardlist.cards.filter(card_question=question)
-    if existing_card_in_db:
-        if existing_card_in_cardlist:
-            # do nothing
-            messages.add_message(request, messages.INFO, 'A card like this is already part of this stack!')
-            logger.error('A card like this is already part of this stack!')
-            return redirect('cards:cardlist', cardlist_id)
-        if not existing_card_in_cardlist:
-            # add card from db, there shouldnt be multiple cards with the same question in the DB (hopefully)
-            newcard = existing_card_in_db[0]
-            logger.error('Found an existing card in the DB and added it!')
-    else:
-        # nothing found, create card
-        newcard = Card.objects.create(card_question=question, card_answer=answer)
-        newcard.save()
+    if existing_card_in_cardlist:
+        # do nothing
+        messages.add_message(request, messages.INFO, 'A card like this is already part of this stack!')
+        logger.error('A card like this is already part of this stack!')
+        return redirect('cards:cardlist', cardlist_id)
+
+
+    # nothing found, create card
+    newcard = Card.objects.create(card_question=question, card_answer=answer)
+    newcard.save()
+
     current_cardlist.cards.add(newcard)
     messages.add_message(request, messages.SUCCESS, 'Your card has been added to this stack!')
 
     # Then redirect to the active cardlist
     return redirect('cards:cardlist', cardlist_id)
 
-def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
 
+def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
     card = Card.objects.get(pk=card_id)
     cardlist = CardList.objects.get(pk=new_cardlist_id)
 
@@ -235,18 +236,17 @@ def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
     if not (request.user.is_superuser or
                 request.user.is_staff or
                 is_owner or
-                user_and_group_access == 'cr' or
-                user_and_group_access == 'crud'):
+                    user_and_group_access == 'cr' or
+                    user_and_group_access == 'crud'):
         return HttpResponseForbidden()
 
     cardlist.cards.add(card)
-    message = 'Added '+card.card_question+' to '+cardlist.cardlist_name+'!'
+    message = 'Added ' + card.card_question + ' to ' + cardlist.cardlist_name + '!'
     messages.add_message(request, messages.SUCCESS, message)
     logger.debug(message)
 
     # Then redirect to the active cardlist
     return redirect('cards:cardlist', original_cardlist_id)
-
 
 
 @login_required
@@ -283,11 +283,12 @@ def remove_cardlist(request, cardlist_id):
     """
 
     cardlist = CardList.objects.get(id=cardlist_id)
-    clgs = CardListGroup.objects.filter(groups__in=list(request.user.groups.all()),cardlist_id=cardlist_id)
-    clus = CardListUser.objects.filter(users__exact=request.user.id,cardlist_id=cardlist_id)
+    clgs = CardListGroup.objects.filter(groups__in=list(request.user.groups.all()), cardlist_id=cardlist_id)
+    clus = CardListUser.objects.filter(users__exact=request.user.id, cardlist_id=cardlist_id)
 
     if request.user.is_staff or request.user.is_superuser:
-        message = "Sorry, as a staff member you're damned to see everything. With great power comes great responsibility."
+        message = "Sorry, as a staff member you're damned to see everything. With great power comes great " \
+                  "responsibility."
         messages.add_message(request, messages.WARNING, message)
         logger.debug(message)
 
@@ -301,9 +302,9 @@ def remove_cardlist(request, cardlist_id):
         # We have group access and can' do anything about it
         # Let' delete user access just in case, so the group access could be removed manually
         clus.delete()
-        message = "You have access to this list through your membership to the group(s) "+\
-                  ', '.join([clg.groups.name for clg in clgs])\
-                  +". As long as you maintain this membership we cannot remove this stack."
+        message = "You have access to this list through your membership to the group(s) " + \
+                  ', '.join([clg.groups.name for clg in clgs]) \
+                  + ". As long as you maintain this membership we cannot remove this stack."
         messages.add_message(request, messages.WARNING, message)
         logger.debug(message)
 
@@ -338,6 +339,7 @@ def share_cardlist(request, cardlist_id):
     }
     return render(request, 'cards/cardlist_share.html', context)
 
+
 @login_required
 def import_cardlist(request, secret):
     # Find out which cardlist is to be imported, there should be only one as per model
@@ -348,6 +350,7 @@ def import_cardlist(request, secret):
         "cardlist_name": scl.cardlist.cardlist_name,
     }
     return render(request, 'cards/cardlist_share_confirm.html', context)
+
 
 @login_required
 def import_cardlist_confirmed(request, secret):
@@ -367,16 +370,16 @@ def import_cardlist_confirmed(request, secret):
 
     if access:
         # Set a message to confirm
-        message = 'You already have access to "'+scl.cardlist.cardlist_name+'".'
+        message = 'You already have access to "' + scl.cardlist.cardlist_name + '".'
         messages.add_message(request, messages.SUCCESS, message)
         logger.debug(message)
     else:
         # Now add user level access to this cardlist, in read only mode
-        clu = CardListUser(users=request.user,cardlist=scl.cardlist,mode='r')
+        clu = CardListUser(users=request.user, cardlist=scl.cardlist, mode='r')
         clu.save()
 
         # Set a message to confirm
-        message = 'The stack  "'+scl.cardlist.cardlist_name+'" has been added to your stacks.'
+        message = 'The stack  "' + scl.cardlist.cardlist_name + '" has been added to your stacks.'
         messages.add_message(request, messages.SUCCESS, message)
         logger.debug(message)
 
@@ -427,11 +430,12 @@ def get_list_of_allowed_cardlists(request, at_least_mode):
 
             return cardlist_list_filtered_by_mode
 
+
 @login_required
 def update_card(request, card_id):
     # this is a async endpoint
     # meaning it does not return any rendered HTML
-    if request.method =='POST':
+    if request.method == 'POST':
         try:
             question = request.POST['question']
             answer = request.POST['answer']
