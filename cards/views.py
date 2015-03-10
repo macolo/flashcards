@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
 from flashcards import settings
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -61,6 +62,7 @@ def create_cardlist(request):
     return redirect('cards:cardlist_index')
 
 
+@ensure_csrf_cookie
 @login_required
 def cardlist(request, cardlist_id):
     # hmm django checks arguments in as strings, however this needs to be compared to a number in the template later on
