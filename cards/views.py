@@ -447,23 +447,27 @@ def update_card(request, card_id):
         # Security says stoooop
 
         # find the lists the user has crud access to
-        user_cls = list(get_list_of_allowed_cardlists(request, 'crud'))
+        user_cls = get_list_of_allowed_cardlists(request, 'crud')
 
         # find lists the card is in
-        card_cls = list(CardList.objects.filter(card_id=card_id))
+        card_cls = list(CardList.objects.filter(cards__id=card_id))
 
-        # if the intersection of the two lists contains at least one cardlist it' ok
+        intersection = False
 
-        card.card_question = question
-        card.card_answer = answer
-        card.save()
+        for cl in user_cls:
+            if cl in card_cls:
+                intersection = True
+                break
 
-        # all ok
-        return HttpResponse()
+        if intersection:
+            card.card_question = question
+            card.card_answer = answer
+            card.save()
 
+            # all ok
+            return HttpResponse()
 
-    else:
-        return HttpResponseServerError()
+    return HttpResponseServerError()
 
 
 @login_required
@@ -478,10 +482,17 @@ def remove_card(request, cardlist_id, card_id):
     except CardList.DoesNotExist:
         return HttpResponseServerError()
 
-    # we don't want to delete here since the card might also be part of other cardlists (dooh!)
-    cardlist.cards.remove(card)
+    # security says stooop - does the user have access to this cardlist?
+    # find the lists the user has crud access to
+    user_cls = get_list_of_allowed_cardlists(request, 'crud')
 
-    return HttpResponse()
+    if cardlist in user_cls:
+        # we don't want to delete here since the card might also be part of other cardlists (dooh!)
+        cardlist.cards.remove(card)
+
+        return HttpResponse()
+
+    return HttpResponseServerError()
 
 
 @login_required

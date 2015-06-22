@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+<!--suppress ALL -->
 <title>{% block title %}{{ cardlist_name }}{% endblock %}</title>
 
 {% block header %}
@@ -26,7 +27,7 @@
                                     <div class="card-edit non-flippable"><i class="small-button fa fa-pencil"></i></div>
                                 {% endif %}
                             </div>
-                            <div class="valign">{{ card.card_answer }}</div>
+                            <div class="valign"><span class="text-editor">{{ card.card_answer }}</span></div>
                             {% if modifiable %}
                                 <div class="card-edit-actions non-flippable">
                                     <div class="card-edit-confirm" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
@@ -54,7 +55,7 @@
                                     </div>
                                 </div>
                             {% endif %}
-                            <div class="valign">{{ card.card_question }}</div>
+                            <div class="valign"><span class="text-editor">{{ card.card_question }}</span></div>
                             {% if modifiable %}
                                 <div class="card-edit-actions non-flippable">
                                     <div class="card-edit-confirm" data-url="{% url 'cards:updatecard' card.id %}"><i class="fa fa-paper-plane"></i></div>
@@ -84,17 +85,18 @@
                         {% csrf_token %}
                         <div class="card-side card_answer back">
                             <div class="valign">
-                                <textarea class="empty-on-click" rows=1 name="card_answer">answer</textarea>
-                                <button class="small-button fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
+                                <span class="empty-on-click text-editor" contenteditable="true" id="input_card_answer">answer</span>
                             </div>
+                            <button class="small-button fc-submit" type="submit"><i class="fa fa-paper-plane"></i></button>
                         </div>
                         <div class="card-side card_question front">
                             <div class="valign">
-                                <textarea class="empty-on-click" rows=1 name="card_question" value="" >add a card</textarea>
-                                <i class="fc-next fa fa-share"></i>
+                                <span class="empty-on-click text-editor" contenteditable="true" id="input_card_question" >add a card</span>
                             </div>
+                            <i class="fc-next fa fa-share"></i>
                         </div>
-
+                        <input type="hidden" name="card_question">
+                        <input type="hidden" name="card_answer">
                     </form>
                 </div>
             </div>
@@ -118,19 +120,93 @@
 
 
     <script>
-        $( document ).ready(function() {
-
+        jQuery( document ).ready(function() {
             // initialise flashcards namespace
             window.flashcards = {};
 
+            // NEW CARD
+
+            jQuery('.empty-on-click').on('click', function() {
+                jQuery(this).empty();
+            });
+
+            // for typing
+
+            jQuery('.card_question, .card_answer').bindWithDelay('keyup', function() {
+                    var should_margin = 80;
+                    var max_font_size = 40;
+                    var min_font_size = 7;
+
+                    var font_size = parseInt(jQuery(this).find('.text-editor').css('font-size'));
+
+                    is_margin = jQuery(this).height() - jQuery(this).find('.text-editor').height();
+                    //console.log('Margin: '+is_margin);
+
+                    // check for sane values
+                    if (!(!isNaN(parseFloat(is_margin)) && isFinite(is_margin))) {
+                        return;
+                    }
+
+                    while (true) {
+                        is_margin = jQuery(this).height() - jQuery(this).find('.text-editor').height();
+                        // if the margin is bigger than it should be, don't decrease font size.
+                        if ( is_margin > should_margin) {
+                            break;
+                        }
+                        if (font_size - 1 < min_font_size) {
+                            return;
+                        }
+                        //console.log('Margin: '+is_margin);
+                        font_size = font_size - 1;
+                        jQuery(this).find('.text-editor').css({'font-size': font_size, 'line-height': 1.1});
+                        //console.log('DOWN');
+
+                        // if we reduced the font size we don't want to increase it in the same keyup
+                        return;
+                    }
+
+                    while (true) {
+                        is_margin = jQuery(this).height() - jQuery(this).find('.text-editor').height();
+                        // if the margin is smaller than it should be, don't increase font size.
+                        if (is_margin <= should_margin + 30) {
+                            break;
+                        }
+                        if (font_size + 1 > max_font_size) {
+                            return;
+                        }
+                        //console.log('Margin: '+is_margin);
+                        font_size = font_size + 1;
+                        jQuery(this).find('.text-editor').css({'font-size': font_size, 'line-height': 1.1});
+                        //console.log('UP');
+                    }
+            }, 1000, true);
+
+            window.flashcards.size_card_content = function() {
+                // this is to adapt the fit the text into the card by adapting the font size
+                jQuery('.card_question .valign, .card_answer .valign').textfill({
+                    'innerTag': '.text-editor',
+                    'debug': false,
+                    'changeLineHeight': true,
+                    'explicitHeight': 200
+                });
+            }
+
+            // do this once on page load
+            window.flashcards.size_card_content();
+
             window.flashcards.toggle_card_to_edit_mode = function(el) {
+
+                // the card shouldnt flip while in edit mode
+                var card = jQuery(el).parents('.card')[0];
+                jQuery(card).toggleClass('fliponclick');
+
                 var cardside = jQuery(el).parents('.card-side')[0];
 
                 var card_controls = jQuery(cardside).find('.card-edit-actions')[0];
                 jQuery(card_controls).toggle();
 
                 // make answer and question contenteditable
-                var text_el = jQuery(cardside).find('.valign');
+                var text_el = jQuery(cardside).find('.text-editor');
 
                 // store current answer or question
                 var text_content = jQuery(text_el).text();
@@ -200,7 +276,7 @@
             });
 
             // this flips the card between question and answer
-            jQuery('.fliponclick').on('click', function(e) {
+            jQuery('body').on('click', '.fliponclick', function(e) {
                 var target = jQuery(e.target);
                 if ( !(jQuery(target).hasClass('non-flippable') || jQuery(target).parents('.non-flippable')[0])) {
                     jQuery(this).toggleClass('flip');
@@ -212,11 +288,13 @@
                 jQuery(this).parents('.newcard').toggleClass('flip');
             });
 
-            // this adapts the size of the textareas for answer and questions to the text it contains
-            $('textarea').on('keyup', function() {
-                $(this).css('height', 'auto').height($(this).prop('scrollHeight'));
-            });
+            // SUBMIT NEW CARD
 
+            jQuery('.fc-submit').on('click', function(e) {
+                jQuery('input[name="card_question"]').val(jQuery('#input_card_question').text());
+                jQuery('input[name="card_answer"]').val(jQuery('#input_card_answer').text());
+
+            });
 
             // COPY CARD
 
@@ -248,10 +326,14 @@
             jQuery('.card-edit-abort').on('click', function(e) {
                 var target = this;
                 var cardside = jQuery(target).parents('.card-side')[0];
-                var text_el = jQuery(cardside).find('.valign');
+                var text_el = jQuery(cardside).find('.text-editor');
                 var text_content = jQuery(text_el).attr('data-content');
-                jQuery(text_el).text(text_content);
+                jQuery(text_el).text(text_content).css({'font-size': 7, 'line-height': 1.1});
                 window.flashcards.toggle_card_to_edit_mode(target);
+                // eeek - it doesn' work the first time for god knows whatever reason.
+                // TODO: fix this little dirty secret of mine.
+                window.flashcards.size_card_content();
+                window.flashcards.size_card_content();
             });
 
             // this will send the updated answer / question of the active card to the server
@@ -260,8 +342,8 @@
                 // retrieve answer and question
                 var card = jQuery(target).parents('.card')[0];
                 var cardside = jQuery(target).parents('.card-side')[0];
-                var answer = jQuery(card).find('.card_answer .valign').text();
-                var question = jQuery(card).find('.card_question .valign').text();
+                var answer = jQuery(card).find('.card_answer .text-editor').text();
+                var question = jQuery(card).find('.card_question .text-editor').text();
 
                 var data = {
                     'answer' : answer.trim(),

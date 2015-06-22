@@ -6,8 +6,8 @@ import uuid
 
 class Card(models.Model):
     created_date = models.DateTimeField('date published', auto_now_add=True)
-    card_question = models.CharField(max_length=200)
-    card_answer = models.CharField(max_length=200)
+    card_question = models.CharField(max_length=600)
+    card_answer = models.CharField(max_length=600)
 
     def __unicode__(self):
         return self.card_question + " - " + self.card_answer
