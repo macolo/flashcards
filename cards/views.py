@@ -2,9 +2,7 @@
 
 import logging
 
-from django.contrib.auth.models import User, Group
-from django.shortcuts import get_object_or_404, render
-from django.http import Http404
+from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -17,7 +15,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 logger = logging.getLogger(__name__)
 
 # Create your views here.
-import datetime
+
 from django.shortcuts import redirect
 
 from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
@@ -93,7 +91,7 @@ def cardlist(request, cardlist_id):
     _cards = cardlist.cards.all().order_by('-created_date')
 
     # # show a special 'new' tag if the card has been created / edited <24h from now
-    cards = [];
+    cards = []
     now = timezone.now()
     for c in _cards:
         created = c.created_date
@@ -133,14 +131,15 @@ def cardlist(request, cardlist_id):
         else:
             modifiable = True
 
-    context = {'card_list': cards,
-               'cardlist_name': cardlist_name,
-               'cardlist_id': cardlist_id,
-               'show_newcard': show_newcard,
-               'can_delete': can_delete,
-               'can_share': can_delete,
-               'modifiable': modifiable,
-               'modifiable_cardlists': modifiable_cardlists,
+    context = {
+        'card_list': cards,
+        'cardlist_name': cardlist_name,
+        'cardlist_id': cardlist_id,
+        'show_newcard': show_newcard,
+        'can_delete': can_delete,
+        'can_share': can_delete,
+        'modifiable': modifiable,
+        'modifiable_cardlists': modifiable_cardlists,
     }
     return render(request, 'cards/card_list.html', context)
 
@@ -359,7 +358,6 @@ def import_cardlist_confirmed(request, secret):
     """
     We have to drag the secret along
     :param request:
-    :param cardlist_id:
     :param secret:
     :return:
     """
@@ -392,7 +390,7 @@ def import_cardlist_confirmed(request, secret):
 @login_required
 def get_list_of_allowed_cardlists(request, at_least_mode):
     """
-    This function returns the cardlists for wich the user has a specified access
+    This function returns the cardlists for which the user has a specified access
     :param request: the django request object, containing user
     :param at_least_mode: the lowest mode from CardListUser or CardListGroup, either 'r', 'cr' or 'crud'
     :return: a list of cardlist
@@ -445,16 +443,31 @@ def update_card(request, card_id):
             return HttpResponseServerError()
 
         card = Card.objects.get(pk=card_id)
-        card.card_question = question
-        card.card_answer = answer
-        card.save()
 
-        # all ok
-        return HttpResponse()
+        # Security says stoooop
 
+        # find the lists the user has crud access to
+        user_cls = get_list_of_allowed_cardlists(request, 'crud')
 
-    else:
-        return HttpResponseServerError()
+        # find lists the card is in
+        card_cls = list(CardList.objects.filter(cards__id=card_id))
+
+        intersection = False
+
+        for cl in user_cls:
+            if cl in card_cls:
+                intersection = True
+                break
+
+        if intersection:
+            card.card_question = question
+            card.card_answer = answer
+            card.save()
+
+            # all ok
+            return HttpResponse()
+
+    return HttpResponseServerError()
 
 
 @login_required
@@ -469,10 +482,17 @@ def remove_card(request, cardlist_id, card_id):
     except CardList.DoesNotExist:
         return HttpResponseServerError()
 
-    # we don't want to delete here since the card might also be part of other cardlists (dooh!)
-    cardlist.cards.remove(card)
+    # security says stooop - does the user have access to this cardlist?
+    # find the lists the user has crud access to
+    user_cls = get_list_of_allowed_cardlists(request, 'crud')
 
-    return HttpResponse()
+    if cardlist in user_cls:
+        # we don't want to delete here since the card might also be part of other cardlists (dooh!)
+        cardlist.cards.remove(card)
+
+        return HttpResponse()
+
+    return HttpResponseServerError()
 
 
 @login_required

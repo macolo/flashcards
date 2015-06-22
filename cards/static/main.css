@@ -165,7 +165,7 @@ body {
     box-shadow: 4px 4px 4px rgba(204, 204, 204, 1);
     text-align: center;
     /* in case somebody uses aaa/bbb/ccc/ddd... */
-    word-break: break-all;
+    word-wrap: break-word;
 
 }
 
@@ -187,27 +187,20 @@ body {
     cursor:pointer;
 }
 
-.newcard textarea {
-    background-color: transparent;
-    border:none;
-    border-bottom: 1px dotted grey;
-    outline:none;
-    font-size:100%;
-    font-family:inherit;
-    text-align:inherit;
-    display:inline-block;
-    vertical-align:middle;
-    width:95%;
-    max-height:350px;
-    resize:vertical;
-    outline: none;
-    /* text-decoration: underline; */
-}
 
 .valign {
     vertical-align:middle;
     display:table-cell;
     width:100%;
+    padding: 5px;
+    font-size: 5px;
+    line-height: normal;
+}
+
+.text-editor {
+    /* this prevents the cursor to move to the top left corner if the span is empty (deleted all text) */
+    display: inline-block;
+    vertical-align: middle;
 }
 
 
@@ -410,7 +403,7 @@ whether a card has been created <24 hours ('NEW') */
    color: rgba(150, 150, 150, 1);
 }
 
-div:focus {outline:0;}
+div:focus, span:focus {outline:0;}
 /*
 prevent blue border on contenteditable
 http://stackoverflow.com/questions/20340138/remove-blue-border-from-css-custom-styled-button-in-chrome
@@ -423,7 +416,8 @@ http://stackoverflow.com/questions/20340138/remove-blue-border-from-css-custom-s
 
  */
 
-div[contenteditable=true] {
+div[contenteditable=true],
+span[contenteditable=true] {
     -moz-user-select: text;
     -webkit-user-select : text;
 }
