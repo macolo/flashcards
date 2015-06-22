@@ -183,11 +183,14 @@
 
             window.flashcards.size_card_content = function() {
                 // this is to adapt the fit the text into the card by adapting the font size
-                jQuery('.card_question .valign, .card_answer .valign').textfill({
-                    'innerTag': '.text-editor',
-                    'debug': false,
-                    'changeLineHeight': true,
-                    'explicitHeight': 200
+                jQuery('.card_question .valign, .card_answer .valign').each(function() {
+                    var height = jQuery(this).height();
+                    jQuery(this).textfill({
+                        'innerTag': '.text-editor',
+                        'debug': false,
+                        'changeLineHeight': true,
+                        'explicitHeight': height * 0.7
+                    });
                 });
             }
 
