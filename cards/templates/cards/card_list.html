@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load compress %}
 
 <!--suppress ALL -->
 <title>{% block title %}{{ cardlist_name }}{% endblock %}</title>
@@ -16,8 +17,6 @@
 {% block content %}
     <div id="card-list">
         {% if card_list %}
-
-
             {% for card in card_list %}
                 <div class="card flip-container fliponclick noselect" data-id="{{ card.id }}">
                     <div class="card-helper flipper noselect">
@@ -118,7 +117,7 @@
     </div>
 
 
-
+{% compress js %}
     <script>
         jQuery( document ).ready(function() {
             // initialise flashcards namespace
@@ -402,6 +401,7 @@
 
 
     </script>
+    {% endcompress %}
 
 {% endblock %}
 

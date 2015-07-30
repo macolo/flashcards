@@ -16,7 +16,9 @@
                 <form action="{% url 'cards:newcardlist' %}" method="post">
                         {% csrf_token %}
                         <input class="line-input empty-on-click" name="cardlist_name" type="text" value=""/>
-                        <button class="small-button new-cardlist-button" type="submit"><i class="fa fa-paper-plane"></i></button>
+                        <button class="small-button new-cardlist-button" type="submit">
+                            <i class="fa fa-paper-plane"></i>
+                        </button>
                 </form>
             </li>
         </ul>
