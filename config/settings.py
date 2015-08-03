@@ -16,12 +16,22 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
+# a convenient shortcut to import environment variables
+env = os.environ.get
+true_values = ['1', 'true', 'y', 'yes', 1, True]
+
+
+# this is a custom method to import required env variables
+def require_env(name):
+    value = env(name)
+    if not value:
+        raise ImproperlyConfigured('Missing {} env variable'.format(name))
+    return value
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['ME_FLASHCARDS_SECRET_KEY']
+SECRET_KEY = env('ME_FLASHCARDS_SECRET_KEY', 'do22\=9b2)$@zeu99-e7*\=0z@!2+sray3o18$w40f9&')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -33,7 +43,7 @@ ALLOWED_HOSTS = []
 APP_NAME = 'flashCards'
 APP_OWNER = 'mercedes español'
 EMAIL_FROM = 'info@mercedes-espanol.ch'
-BASE_URL = os.environ['ME_FLASHCARDS_BASE_URL']
+BASE_URL = env('ME_FLASHCARDS_BASE_URL', 'http://localhost:8000')
 
 # Application definition
 
@@ -75,11 +85,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ['ME_FLASHCARDS_DB_NAME'],
-        'USER': os.environ['ME_FLASHCARDS_DB_USER'],
-        'PASSWORD': os.environ['ME_FLASHCARDS_DB_PASSWORD'],
-        'HOST': os.environ['ME_FLASHCARDS_DB_HOST'],
-        'PORT': os.environ['ME_FLASHCARDS_DB_PORT'],
+        'NAME': env('ME_FLASHCARDS_DB_NAME', 'flashcards'),
+        'USER': env('ME_FLASHCARDS_DB_USER', 'flashcards'),
+        'PASSWORD': env('ME_FLASHCARDS_DB_PASSWORD', 'flashcards'),
+        'HOST': env('ME_FLASHCARDS_DB_HOST', 'localhost'),
+        'PORT': env('ME_FLASHCARDS_DB_PORT', ''),
     }
 }
 
@@ -167,13 +177,13 @@ TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + (
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
 
 # needed for python social auth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY']
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET']
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env('ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', '')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env('ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', '')
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'access_type': 'offline'}
 SOCIAL_AUTH_GOOGLE_OAUTH2_REQUEST_TOKEN_EXTRA_ARGUMENTS = {'access_type': 'offline'}
 
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_KEY']
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_SECRET']
+SOCIAL_AUTH_FACEBOOK_KEY = env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_KEY', '')
+SOCIAL_AUTH_FACEBOOK_SECRET = env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_SECRET', '')
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 # unique e-mail addresses:
@@ -236,7 +246,7 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 LOGIN_ERROR_URL = 'accounts:login'
 
 # needed for python social auth
-MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES + (
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + (
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 )
 
