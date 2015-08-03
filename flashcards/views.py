@@ -5,27 +5,28 @@ import logging
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
-from flashcards import settings
+from config import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.cache import never_cache
+from django.shortcuts import redirect
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
 # Create your views here.
 
-from django.shortcuts import redirect
-
-from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
+from flashcards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
+import flashcards.helpers
 
 
 @login_required
+@never_cache
 def cardlist_index(request):
     # let' retrieve all the cardlists where the user has at least 'r' (read) access
     # this includes lists with 'cr' (read and create) and 'crud' (full) access.
-    cardlist_list = get_list_of_allowed_cardlists(request, 'r')
+    cardlist_list = flashcards.helpers.get_list_of_allowed_cardlists(request, 'r')
 
     if not cardlist_list.exists():
         message = "You haven't got any card stacks! " \
@@ -38,6 +39,7 @@ def cardlist_index(request):
 
 
 @login_required
+@never_cache
 def create_cardlist(request):
     try:
         cardlist_name = request.POST['cardlist_name']
@@ -62,6 +64,7 @@ def create_cardlist(request):
 
 @ensure_csrf_cookie
 @login_required
+@never_cache
 def cardlist(request, cardlist_id):
     # hmm django checks arguments in as strings, however this needs to be compared to a number in the template later on
     cardlist_id = int(cardlist_id)
@@ -73,7 +76,7 @@ def cardlist(request, cardlist_id):
     # The higher permissions trump the lower
     # a group the user is a member of can have 'r' and the user itself can have 'ru'
     # owner or admin always wins.
-    user_and_group_access = get_user_and_group_access_level(request, cardlist_id)
+    user_and_group_access = flashcards.helpers.get_user_and_group_access_level(request, cardlist_id)
 
     if cardlist.owner.pk == request.user.id:
         is_owner = True
@@ -151,38 +154,7 @@ def cardlist(request, cardlist_id):
 
 
 @login_required
-def get_user_and_group_access_level(request, cardlist_id):
-    """
-
-    :param cardlist_id: the id of the current cardlist
-    :return: the highest access level the current user has access to either to his group or user access
-    """
-    modes = []
-    for po in CardListUser.objects.filter(cardlist__pk=cardlist_id, users__pk=request.user.id).distinct():
-        modes.append(po.mode)
-
-    for po in CardListGroup.objects.filter(cardlist__pk=cardlist_id,
-                                           groups__in=list(request.user.groups.all())).distinct():
-        modes.append(po.mode)
-
-    # If there aren't any access records it means that there is no access at all.
-    if not modes:
-        return False
-
-    # Iterates over a list and finds the highest access level
-    trumping_access_level = 'r'
-    for mode in modes:
-        # if it is the highest permission, we can return right away
-        if mode == 'crud':
-            return mode
-        # if its the perm in between, there might later on still be a higher permission
-        elif mode == 'cr':
-            trumping_access_level = mode
-    # we can now safely use the highest perm. At this point it is either 'cr' or it stayed 'r'
-    return trumping_access_level
-
-
-@login_required
+@never_cache
 def create_card(request, cardlist_id):
     # Here we will store the new card
     try:
@@ -226,6 +198,8 @@ def create_card(request, cardlist_id):
     return redirect('cards:cardlist', cardlist_id)
 
 
+@login_required
+@never_cache
 def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
     card = Card.objects.get(pk=card_id)
     cardlist = CardList.objects.get(pk=new_cardlist_id)
@@ -235,7 +209,7 @@ def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
     else:
         is_owner = False
 
-    user_and_group_access = get_user_and_group_access_level(request, new_cardlist_id)
+    user_and_group_access = flashcards.helpers.get_user_and_group_access_level(request, new_cardlist_id)
 
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
@@ -256,6 +230,7 @@ def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
 
 
 @login_required
+@never_cache
 def delete_cardlist(request, cardlist_id):
     cardlist = CardList.objects.get(id=cardlist_id)
     # we need to find out whether the current user is allowed to delete!
@@ -279,6 +254,7 @@ def delete_cardlist(request, cardlist_id):
 
 
 @login_required
+@never_cache
 def remove_cardlist(request, cardlist_id):
     """
     Of course a cardlist can only be removed if it is in the list of the user
@@ -329,6 +305,7 @@ def remove_cardlist(request, cardlist_id):
 
 
 @login_required
+@never_cache
 def share_cardlist(request, cardlist_id):
     cardlist = CardList.objects.get(id=cardlist_id)
     scl = ShareCardList.objects.filter(cardlist_id=cardlist_id)
@@ -347,6 +324,7 @@ def share_cardlist(request, cardlist_id):
 
 
 @login_required
+@never_cache
 def import_cardlist(request, secret):
     # Find out which cardlist is to be imported, there should be only one as per model
     # We need the name anyway
@@ -359,6 +337,7 @@ def import_cardlist(request, secret):
 
 
 @login_required
+@never_cache
 def import_cardlist_confirmed(request, secret):
     """
     We have to drag the secret along
@@ -370,7 +349,7 @@ def import_cardlist_confirmed(request, secret):
     scl = ShareCardList.objects.get(secret=secret)
 
     # Is there already a user access set?
-    access = get_user_and_group_access_level(request, scl.cardlist.id)
+    access = flashcards.helpers.get_user_and_group_access_level(request, scl.cardlist.id)
     # existing_clu = CardListUser.objects.filter(users=request.user, cardlist=scl.cardlist)
 
     if access:
@@ -392,51 +371,9 @@ def import_cardlist_confirmed(request, secret):
     return redirect('cards:cardlist', scl.cardlist.id)
 
 
-@login_required
-def get_list_of_allowed_cardlists(request, at_least_mode):
-    """
-    This function returns the cardlists for which the user has a specified access
-    :param request: the django request object, containing user
-    :param at_least_mode: the lowest mode from CardListUser or CardListGroup, either 'r', 'cr' or 'crud'
-    :return: a list of cardlist
-    """
-
-    if request.user.is_superuser:
-        cardlist_list = CardList.objects.all()
-        return cardlist_list
-    else:
-        # find all cardlists which groups match current_user_group_ids OR which users match current_user_id
-        # OR which owner match current_user_id
-        # http://stackoverflow.com/questions/7740356/logical-or-of-django-many-to-many-queries-returns-duplicate
-        # -results
-        cardlist_list = CardList.objects.filter(
-            Q(groups__in=list(request.user.groups.all())) | Q(users__exact=request.user.id) |
-            Q(owner__exact=request.user.id)).distinct().order_by('-created_date')
-        # This returns all cardlists, because 'r' is the lowest access level.
-        if at_least_mode == 'r':
-            return cardlist_list
-        else:
-            # Let' retrieve the highest mode for cardlists the user has access to:
-            cardlist_list_filtered_by_mode = []
-            for cl in cardlist_list:
-                # first check if user is owner:
-                if cl.owner == request.user:
-                    cardlist_list_filtered_by_mode.append(cl)
-                    # only add a cl to the stack once.
-                    continue
-                # this gets us the highest access level for that cardlist
-                trumping_mode = get_user_and_group_access_level(request, cl.id)
-                # it needs to be equal or higher than 'cr' OR equal than 'crud'
-                if (at_least_mode == 'cr' and (trumping_mode == 'cr' or trumping_mode == 'crud')) or \
-                        (at_least_mode == 'crud' and trumping_mode == 'crud'):
-                    cardlist_list_filtered_by_mode.append(cl)
-                    # only add a cl to the stack once. This is to prevent future bugs.
-                    continue
-
-            return cardlist_list_filtered_by_mode
-
 
 @login_required
+@never_cache
 def update_card(request, card_id):
     # this is a async endpoint
     # meaning it does not return any rendered HTML
@@ -476,6 +413,7 @@ def update_card(request, card_id):
 
 
 @login_required
+@never_cache
 def remove_card(request, cardlist_id, card_id):
     try:
         card = Card.objects.get(pk=card_id)

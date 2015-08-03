@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 from django.conf import settings
@@ -38,7 +39,7 @@ BASE_URL = os.environ['ME_FLASHCARDS_BASE_URL']
 
 INSTALLED_APPS = (
     'django_extensions',
-    'usermgmt', # before django.contrib.admin because of
+    'usermgmt',  # before django.contrib.admin because of
     # http://stackoverflow.com/questions/447512/how-do-i-override-djangos-administrative-change-password-page
     'django.contrib.admin',
     'django.contrib.auth',
@@ -48,7 +49,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'debug_toolbar',
-    'cards',
+    'flashcards',
     'compressor',
 
 )
@@ -63,9 +64,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'flashcards.urls'
+ROOT_URLCONF = 'config.urls'
 
-WSGI_APPLICATION = 'flashcards.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
@@ -111,11 +112,11 @@ LOGGING = {
         'console': {
             # logging handler that outputs log messages to terminal
             'class': 'logging.StreamHandler',
-            'level': 'DEBUG', # message level to be written to console
+            'level': 'DEBUG',  # message level to be written to console
         },
         'null': {
-            'level':'DEBUG',
-            'class':'django.utils.log.NullHandler',
+            'level': 'DEBUG',
+            'class': 'django.utils.log.NullHandler',
         },
     },
     'loggers': {
@@ -125,15 +126,15 @@ LOGGING = {
             # root level logger.
             'handlers': ['console'],
             'level': 'DEBUG',
-            'propagate': False, # this tells logger to send logging message
-                                # to its parent (will send if set to True)
+            'propagate': False,  # this tells logger to send logging message
+            # to its parent (will send if set to True)
         },
         # http://stackoverflow.com/questions/7768027/turn-off-sql-logging-while-keeping-settings-debug
         'django.db.backends': {
             'handlers': ['null'],  # Quiet by default!
             'propagate': False,
-            'level':'DEBUG',
-            },
+            'level': 'DEBUG',
+        },
     },
 }
 
@@ -150,7 +151,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 
 # needed for python social auth
-AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS +  (
+AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS + (
     'social.backends.google.GoogleOAuth2',
     'social.backends.facebook.FacebookOAuth2',
 )
@@ -226,16 +227,16 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 
 # http://psa.matiasaguirre.net/docs/configuration/settings.html#miscellaneous-settings
-#The user_details pipeline processor will set certain fields on user objects, such as email.
+# The user_details pipeline processor will set certain fields on user objects, such as email.
 # Set this to a list of fields you only want to set for newly created users and avoid updating on further logins.
-SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email',]
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 
 
 # Make PSA render its exceptions instead of throwing them
 LOGIN_ERROR_URL = 'accounts:login'
 
 # needed for python social auth
-MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES +  (
+MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES + (
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
 )
 

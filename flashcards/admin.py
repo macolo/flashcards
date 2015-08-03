@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from django.contrib import admin
 
-from cards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
+from flashcards.models import CardList, Card, CardListGroup, CardListUser, ShareCardList
 
 # Manage cards
 class CardAdmin(admin.ModelAdmin):
