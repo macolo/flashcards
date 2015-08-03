@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='card',
             name='cardlist',
-            field=models.ManyToManyField(to='cards.CardList'),
+            field=models.ManyToManyField(to='flashcards.CardList'),
             preserve_default=True,
         ),
     ]

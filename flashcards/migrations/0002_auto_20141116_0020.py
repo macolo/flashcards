@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('auth', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('cards', '0001_initial'),
+        ('flashcards', '0001_initial'),
     ]
 
     operations = [

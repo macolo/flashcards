@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cards', '0007_sharecardlist'),
+        ('flashcards', '0007_sharecardlist'),
     ]
 
     operations = [

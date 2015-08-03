@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('cards', '0003_auto_20141127_1437'),
+        ('flashcards', '0003_auto_20141127_1437'),
     ]
 
     operations = [
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cardlist',
             name='cards',
-            field=models.ManyToManyField(to='cards.Card'),
+            field=models.ManyToManyField(to='flashcards.Card'),
             preserve_default=True,
         ),
         migrations.AlterField(

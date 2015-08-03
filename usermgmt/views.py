@@ -78,7 +78,7 @@ def signup(request):
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
-from flashcards import settings
+from config import settings
 
 def send_validation_mail(user):
     # http://sheeshmohsin.wordpress.com/2014/02/18/send-html-template-email-using-django/
