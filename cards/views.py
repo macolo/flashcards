@@ -82,10 +82,11 @@ def cardlist(request, cardlist_id):
 
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
-    if not (request.user.is_superuser or
-                request.user.is_staff or
-                is_owner or
-                user_and_group_access):
+    if not (
+            request.user.is_superuser or
+            request.user.is_staff or
+            is_owner or
+            user_and_group_access):
         return HttpResponseForbidden()
 
     _cards = cardlist.cards.all().order_by('-created_date')
@@ -120,15 +121,20 @@ def cardlist(request, cardlist_id):
 
     # This gets us all cardlists where a user can read and create cards (and above)
     # This is needed in order to display a list of cardlists the user can copy a card to.
-    _modifiable_cardlists = get_list_of_allowed_cardlists(request, 'cr')
+    _addable_cardlists = get_list_of_allowed_cardlists(request, 'cr')
 
     # remove active cardlist
-    modifiable_cardlists = []
-    modifiable = False
-    for cl in _modifiable_cardlists:
+    addable_cardlists = []
+
+    for cl in _addable_cardlists:
         if cl.id != cardlist_id:
-            modifiable_cardlists.append(cl)
-        else:
+            addable_cardlists.append(cl)
+
+    _modifiable_cardlists = get_list_of_allowed_cardlists(request, 'crud')
+    modifiable = False
+
+    for cl in _modifiable_cardlists:
+        if cl.id == cardlist_id:
             modifiable = True
 
     context = {
@@ -139,7 +145,7 @@ def cardlist(request, cardlist_id):
         'can_delete': can_delete,
         'can_share': can_delete,
         'modifiable': modifiable,
-        'modifiable_cardlists': modifiable_cardlists,
+        'addable_cardlists': addable_cardlists,
     }
     return render(request, 'cards/card_list.html', context)
 
@@ -182,7 +188,7 @@ def create_card(request, cardlist_id):
     try:
         question = request.POST['card_question']
         answer = request.POST['card_answer']
-    except(StandardError):
+    except StandardError:
         error_msg = 'Post request for card creation is lacking mandatory values.'
         logger.error(error_msg)
         context = {'error_msg': error_msg}
@@ -209,7 +215,6 @@ def create_card(request, cardlist_id):
         logger.error('A card like this is already part of this stack!')
         return redirect('cards:cardlist', cardlist_id)
 
-
     # nothing found, create card
     newcard = Card.objects.create(card_question=question, card_answer=answer)
     newcard.save()
@@ -235,10 +240,10 @@ def copycardto(request, original_cardlist_id, new_cardlist_id, card_id):
     # Check access permissions to this stack, if either one of the conditions is true
     # allow access.
     if not (request.user.is_superuser or
-                request.user.is_staff or
-                is_owner or
-                    user_and_group_access == 'cr' or
-                    user_and_group_access == 'crud'):
+            request.user.is_staff or
+            is_owner or
+            user_and_group_access == 'cr' or
+            user_and_group_access == 'crud'):
         return HttpResponseForbidden()
 
     cardlist.cards.add(card)
@@ -446,7 +451,7 @@ def update_card(request, card_id):
 
         # Security says stoooop
 
-        # find the lists the user has crud access to
+        # find the lists the user has at least cr access to
         user_cls = get_list_of_allowed_cardlists(request, 'crud')
 
         # find lists the card is in
