@@ -124,7 +124,7 @@ def cardlist(request, cardlist_id):
 
     # This gets us all cardlists where a user can read and create cards (and above)
     # This is needed in order to display a list of cardlists the user can copy a card to.
-    _addable_cardlists = get_list_of_allowed_cardlists(request, 'cr')
+    _addable_cardlists = flashcards.helpers.get_list_of_allowed_cardlists(request, 'cr')
 
     # remove active cardlist
     addable_cardlists = []
@@ -133,7 +133,7 @@ def cardlist(request, cardlist_id):
         if cl.id != cardlist_id:
             addable_cardlists.append(cl)
 
-    _modifiable_cardlists = get_list_of_allowed_cardlists(request, 'crud')
+    _modifiable_cardlists = flashcards.helpers.get_list_of_allowed_cardlists(request, 'crud')
     modifiable = False
 
     for cl in _modifiable_cardlists:
@@ -389,7 +389,7 @@ def update_card(request, card_id):
         # Security says stoooop
 
         # find the lists the user has at least cr access to
-        user_cls = get_list_of_allowed_cardlists(request, 'crud')
+        user_cls = flashcards.helpers.get_list_of_allowed_cardlists(request, 'crud')
 
         # find lists the card is in
         card_cls = list(CardList.objects.filter(cards__id=card_id))
@@ -427,7 +427,7 @@ def remove_card(request, cardlist_id, card_id):
 
     # security says stooop - does the user have access to this cardlist?
     # find the lists the user has crud access to
-    user_cls = get_list_of_allowed_cardlists(request, 'crud')
+    user_cls = flashcards.helpers.get_list_of_allowed_cardlists(request, 'crud')
 
     if cardlist in user_cls:
         # we don't want to delete here since the card might also be part of other cardlists (dooh!)
