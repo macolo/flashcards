@@ -39,21 +39,27 @@
                             {% ifequal card.is_new True %}
                                 <div class="is-new"><span class="noselect" title="This card has recently been added to the stack.">NEW</span></div>
                             {% endifequal %}
-                            {% if modifiable %}
                                 <div class="card-actions">
-                                    <div class="card-edit non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                                    {% if addable_cardlists|length > 0 %}
                                     <div class="card-copy non-flippable"><i class="small-button fa fa-files-o"></i></div>
+                                    {% endif %}
+                                    {% if modifiable %}
                                     <div class="card-delete non-flippable"><i class="small-button fa fa-trash-o"></i></div>
+                                    <div class="card-edit non-flippable"><i class="small-button fa fa-pencil"></i></div>
+                                    {% endif %}
+
+                                    {% if addable_cardlists|length > 0 %}
                                     <div class="card-copy-actions non-flippable">
                                         <p>Copy this card into:</p>
                                         <ul>
-                                            {% for cardlist in modifiable_cardlists %}
+                                            {% for cardlist in addable_cardlists %}
                                                 <li class="fa-cardlist-icon"><a href="{% url 'cards:copycardto' cardlist_id card.id cardlist.id %}">{{ cardlist.cardlist_name }}</a></li>
                                             {% endfor %}
                                         </ul>
                                     </div>
+                                    {% endif %}
+
                                 </div>
-                            {% endif %}
                             <div class="valign"><span class="text-editor">{{ card.card_question }}</span></div>
                             {% if modifiable %}
                                 <div class="card-edit-actions non-flippable">
