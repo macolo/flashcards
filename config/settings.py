@@ -185,6 +185,10 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_REQUEST_TOKEN_EXTRA_ARGUMENTS = {'access_type': 'offli
 SOCIAL_AUTH_FACEBOOK_KEY = env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_KEY', '')
 SOCIAL_AUTH_FACEBOOK_SECRET = env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_SECRET', '')
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+# https://github.com/omab/python-social-auth/issues/675
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id,name,email',  # needed starting from protocol v2.4
+}
 
 # unique e-mail addresses:
 # http://stackoverflow.com/questions/19273904/how-to-have-unique-emails-with-python-social-auth
