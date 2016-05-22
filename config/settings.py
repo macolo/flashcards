@@ -12,23 +12,35 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 from django.conf import settings
 
+# a convenient shortcut to import environment variables
+env = os.environ.get
+true_values = ['1', 'true', 'y', 'yes', 1, True]
+
+
+# this is a custom method to import required env variables
+def require_env(name):
+    value = env(name)
+    if not value:
+        raise ImproperlyConfigured('Missing {} env variable'.format(name))
+    return value
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['ME_FLASHCARDS_SECRET_KEY']
+SECRET_KEY = require_env('ME_FLASHCARDS_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env('ME_DEBUG', 'False').lower() in true_values
 
-TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = ['flashcards.typodrive.com', 'www.mercedes-espanol.ch']
+ALLOWED_HOSTS = ['flashcards.typodrive.com', 'www.mercedes-espanol.ch', "127.0.0.1", "localhost"]
 
 APP_NAME = 'flashCards'
 APP_OWNER = 'mercedes español'
@@ -38,7 +50,6 @@ BASE_URL = os.environ['ME_FLASHCARDS_BASE_URL']
 # Application definition
 
 INSTALLED_APPS = (
-    'django_extensions',
     'usermgmt',  # before django.contrib.admin because of
     # http://stackoverflow.com/questions/447512/how-do-i-override-djangos-administrative-change-password-page
     'django.contrib.admin',
@@ -48,13 +59,19 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
     'flashcards',
     'compressor',
-
 )
 
-MIDDLEWARE_CLASSES = (
+if DEBUG:
+    INSTALLED_APPS += (
+        'django_extensions',
+        'debug_toolbar',
+    )
+
+
+MIDDLEWARE_CLASSES = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -62,7 +79,27 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
+
+
+# show django debug toolbar even remotely
+# from here: https://github.com/django-debug-toolbar/django-debug-toolbar/blob/master/debug_toolbar/middleware.py#L23
+def show_toolbar(request):
+    """
+    determine whether to show the toolbar on a given page.
+    """
+
+    if request.is_ajax():
+        return False
+
+    return bool(DEBUG)
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+    'SHOW_TEMPLATE_CONTEXT': True,
+}
+
 
 ROOT_URLCONF = 'config.urls'
 
@@ -72,28 +109,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ['ME_FLASHCARDS_DB_NAME'],
-        'USER': os.environ['ME_FLASHCARDS_DB_USER'],
-        'PASSWORD': os.environ['ME_FLASHCARDS_DB_PASSWORD'],
-        'HOST': os.environ['ME_FLASHCARDS_DB_HOST'],
-        'PORT': os.environ['ME_FLASHCARDS_DB_PORT'],
+LOCAL = env('ME_LOCAL', 'False').lower() in true_values
+
+if LOCAL:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': require_env('ME_FLASHCARDS_DB_NAME'),
+            'USER': require_env('ME_FLASHCARDS_DB_USER'),
+            'PASSWORD': require_env('ME_FLASHCARDS_DB_PASSWORD'),
+            'HOST': require_env('ME_FLASHCARDS_DB_HOST'),
+            'PORT': env('ME_FLASHCARDS_DB_PORT', '5432'),
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -117,7 +160,7 @@ LOGGING = {
         },
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'logfile': {
             'level':'WARNING',
@@ -149,43 +192,62 @@ LOGGING = {
 LOGIN_REDIRECT_URL = "cards:cardlist_index"
 
 # this is the name for the login page from flashcards/urls.py
-LOGIN_URL = 'login'
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-# this is the name for the login page from flashcards/urls.py
 LOGIN_URL = 'accounts:login'
 
-
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TEMPLATE_CONTEXT': True,
-}
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # needed for python social auth
-AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS + (
+AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS + [
     'social.backends.google.GoogleOAuth2',
     'social.backends.facebook.FacebookOAuth2',
-)
+]
 
-# needed for python social auth
-# http://psa.matiasaguirre.net/docs/configuration/django.html
-TEMPLATE_CONTEXT_PROCESSORS = settings.TEMPLATE_CONTEXT_PROCESSORS + (
-    'social.apps.django_app.context_processors.backends',
-    'social.apps.django_app.context_processors.login_redirect',
-)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                # needed for python social auth
+                # http://psa.matiasaguirre.net/docs/configuration/django.html
+                'social.apps.django_app.context_processors.backends',
+                'social.apps.django_app.context_processors.login_redirect',
+            ],
+            'debug': DEBUG
+        },
+    },
+]
+
 
 # needed for python social auth
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
 
 # needed for python social auth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY']
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET']
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = require_env('ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = require_env('ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile'
+]
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {'access_type': 'offline'}
 SOCIAL_AUTH_GOOGLE_OAUTH2_REQUEST_TOKEN_EXTRA_ARGUMENTS = {'access_type': 'offline'}
 
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_KEY']
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ['ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_SECRET']
+SOCIAL_AUTH_FACEBOOK_KEY = require_env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_KEY')
+SOCIAL_AUTH_FACEBOOK_SECRET = require_env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_SECRET')
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
 
 # unique e-mail addresses:
@@ -249,12 +311,13 @@ SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
 LOGIN_ERROR_URL = 'accounts:login'
 
 # needed for python social auth
-MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES + (
+
+MIDDLEWARE_CLASSES += [
     'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
-)
+]
 
 COMPRESS_ENABLED = not DEBUG
 
-STATICFILES_FINDERS = settings.STATICFILES_FINDERS + (
+STATICFILES_FINDERS = settings.STATICFILES_FINDERS + [
     'compressor.finders.CompressorFinder',
-)
+]

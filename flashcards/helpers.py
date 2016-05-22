@@ -1,7 +1,7 @@
 __author__ = 'mario'
 
 from django.db.models import Q
-from models import CardList, CardListUser, CardListGroup
+from .models import CardList, CardListUser, CardListGroup
 
 
 def get_list_of_allowed_cardlists(request, at_least_mode):

@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% load backend_utils %}
 {% block content_title %}<h1>Log In</h1>{% endblock %}
 {% block content %}
 
@@ -23,14 +22,14 @@
                 </span>
             </div>
 
-            <button class="big-button" type="submit">Login</button> <a href="{% url 'password_reset' %}">or get a new password</a>
+            <button class="big-button" type="submit">Login</button> <a href="{% url 'django.contrib.auth.views.password_reset' %}">or get a new password</a>
             <input type="hidden" name="next" value="{{ next }}" />
         </form>
 
         {% include 'registration/oauth_buttons.html' %}
 
         <p>Psst! Are you new here?
-            <a class="big-button" href="{% url 'accounts:signup' %}">Sign up for free</a>
+            <a class="big-button" href="{% url 'accounts:signup' %}?next={{ next }}{% if request.GET.deeplink %}&deeplink=true{% endif %}">Sign up for free</a>
         </p>
     </div>
 

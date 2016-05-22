@@ -43,7 +43,7 @@ def cardlist_index(request):
 def create_cardlist(request):
     try:
         cardlist_name = request.POST['cardlist_name']
-    except StandardError:
+    except Exception:
         return redirect('cards:cardlist_index')
 
     if cardlist_name == "":
@@ -160,7 +160,7 @@ def create_card(request, cardlist_id):
     try:
         question = request.POST['card_question']
         answer = request.POST['card_answer']
-    except StandardError:
+    except Exception:
         error_msg = 'Post request for card creation is lacking mandatory values.'
         logger.error(error_msg)
         context = {'error_msg': error_msg}

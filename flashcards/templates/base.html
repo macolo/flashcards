@@ -57,7 +57,7 @@
                 <a href="{% url 'accounts:profile' %}"><i class="fa fa-user"></i> {{ user.get_username }}</a>
             </div>
             <div class="header-element">
-                <a href="{% url 'logout' %}"><i class="fa fa-power-off"></i> logout</a>
+                <a href="{% url 'accounts:logout' %}"><i class="fa fa-power-off"></i> logout</a>
             </div>
         {% endif %}
 

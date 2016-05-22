@@ -33,8 +33,8 @@ class ExtendedUserCreationForm(UserCreationForm):
     * Data not saved by the default behavior of UserCreationForm is saved.
     """
 
-    email = UniqueUserEmailField(required = True, label = 'Email address')
-    username = forms.CharField(required = False, max_length = 30)
+    email = UniqueUserEmailField(required=True, label='Email address')
+    username = forms.CharField(required=False, max_length=30)
 
     class Meta:
         model = User
@@ -52,21 +52,20 @@ class ExtendedUserCreationForm(UserCreationForm):
         Normal cleanup + username generation.
         """
         cleaned_data = super(UserCreationForm, self).clean(*args, **kwargs)
-        if cleaned_data.has_key('email'):
+        if 'email' in cleaned_data:
             cleaned_data['username'] = cleaned_data['email']
         return cleaned_data
         
-    def save(self, commit=True):
+    def save(self):
         """
         Saves the email, first_name and last_name properties, after the normal
         save behavior is complete.
         """
-        user = super(UserCreationForm, self).save(commit)
+        user = super(UserCreationForm, self).save(commit=False)
         if user:
             user.username = self.cleaned_data['email']
             user.email = self.cleaned_data['email']
             user.set_password(self.cleaned_data['password1'])
             user.is_active = False
-            if commit:
-                user.save()
+            user.save()
         return user

@@ -8,18 +8,22 @@ https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
 """
 
 import os
+from django.core.wsgi import get_wsgi_application
+import config.settings
+import dotenv
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-# Activate your virtual env
-activate_env=os.path.expanduser("/opt/virtual_env/flashcards/bin/activate_this.py")
-execfile(activate_env, dict(__file__=activate_env))
+# https://github.com/jpadilla/django-dotenv
+dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-from django.core.wsgi import get_wsgi_application
+# only if not locally executed
+if not config.settings.LOCAL:
 
-def application(environ, start_response):
-    # pass the WSGI environment variables on through to os.environ
-    for key in environ:
-        if key.startswith('ME_FLASHCARDS_'):
-            os.environ[key] = environ[key]
-    _application = get_wsgi_application()
-    return _application(environ, start_response)
+    # Activate the virtual env
+    activate_virtual_env_path = config.settings.require_env('ME_VIRTUALENV_ACTIVATE_THIS_PATH')
+    with open(activate_virtual_env_path) as f:
+        code = compile(f.read(), activate_virtual_env_path, 'exec')
+        exec(code)
+
+application = get_wsgi_application()

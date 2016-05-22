@@ -1,4 +1,5 @@
 {% load backend_utils %}
+{% available_backends as available_backends %}
 {% for sublist in available_backends|social_backends %}
     <div class="row">
         {% for name, backend in sublist %}
@@ -11,7 +12,7 @@
                     </a>
                 </form>
             {% else %}
-                <a class="big-button form-trigger" name="{{ backend|backend_class }}" href="{% url "social:begin" backend=name %}">
+                <a class="big-button form-trigger" name="{{ backend|backend_class }}" href="{% url "social:begin" backend=name %}{% if request.GET.next %}?next={{request.GET.next}}{% endif %}">
                     <i class="fa fa-{{ name|icon_name }}"></i>
                     {{ button_action }} {{ backend|backend_name }}
                 </a>

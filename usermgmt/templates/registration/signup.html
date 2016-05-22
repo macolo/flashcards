@@ -40,6 +40,10 @@
                 </span>
             </div>
 
+            {% comment %}
+                as this view is referred to by get and not by post, {{ next }} will most likely not be set.
+            {% endcomment %}
+            <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}{{ request.GET.next }}{% endif %}" />
             <button class="big-button" type="submit">Sign Up</button>
         </form>
 

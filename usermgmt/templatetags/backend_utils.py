@@ -1,7 +1,7 @@
+from config import settings
+from social.backends.utils import load_backends
 import re
-
 from django import template
-
 from social.backends.oauth import OAuthAuth
 
 
@@ -79,3 +79,9 @@ def associated(context, backend):
         except IndexError:
             pass
     return ''
+
+
+@register.simple_tag()
+def available_backends():
+    backends = load_backends(settings.AUTHENTICATION_BACKENDS)
+    return backends

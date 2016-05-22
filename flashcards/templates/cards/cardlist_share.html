@@ -6,7 +6,7 @@
 {% block content %}
     <div class="text-content login">
         <p>Here is the URL that you can share with your friends now:</p>
-        <p>{{ base_url }}{% url 'cards:importcardlist' secret %}</p>
+        <p>{{ base_url }}{% url 'accounts:login' %}?next={% url 'cards:importcardlist' secret %}&deeplink=true</p>
         <div class="cardlist-share-cardlist">
             <a class="big-button" href="{% url 'cards:cardlist' cardlist_id %}">Back to stack</a>
         </div>
