@@ -23,6 +23,6 @@ class UserValidationCode(models.Model):
     def get_user_email(self):
         return self.user.email
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
