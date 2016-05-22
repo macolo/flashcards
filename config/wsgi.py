@@ -7,15 +7,15 @@ For more information on this file, see
 https://docs.djangoproject.com/en/1.7/howto/deployment/wsgi/
 """
 
+# https://github.com/jpadilla/django-dotenv
 import os
+import dotenv
+dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
+
 from django.core.wsgi import get_wsgi_application
 import config.settings
-import dotenv
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
-
-# https://github.com/jpadilla/django-dotenv
-dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 # only if not locally executed
 if not config.settings.LOCAL:
