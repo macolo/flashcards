@@ -31,15 +31,21 @@ admin.site.register(CardListUser)
 # Managed stacks of cards
 class CardListAdminUserInline(admin.TabularInline):
     model = CardListUser
-    extra = 1 # how many rows to show
+    extra = 1  # how many rows to show
+
 
 class CardListAdminGroupInline(admin.TabularInline):
     model = CardListGroup
-    extra = 1 # how many rows to show
+    extra = 1  # how many rows to show
+
 
 class CardListAdmin(admin.ModelAdmin):
     # This activates the SelectBox.js which renders many-to-many nicely
-    filter_horizontal = ('cards', )
+    # filter_horizontal = ('cards', )
+    fields = (
+        'cardlist_name',
+        'owner',
+    )
     inlines = (CardListAdminUserInline, CardListAdminGroupInline)
     list_display = ('cardlist_name', 'owner')
 

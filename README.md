@@ -6,6 +6,7 @@
 * `pip install -r requirements.txt`
 * `./manage.py migrate`
 * Copy the `.example-env` to `.env` and fill in the values
+* Don't forget `./manage.py collectstatic`
 
 
 ## Some arbitrary notes
