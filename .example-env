@@ -12,6 +12,13 @@ ME_FLASHCARDS_BASE_URL=https://localhost:8031
 ME_DEBUG=false
 ME_LOCAL=false
 
-ME_VIRTUALENV_ACTIVATE_THIS_PATH="/opt/virtual_env/flashcards/bin/activate_this.py"
+EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
+# EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+#EMAIL_HOST=127.0.0.1
+#EMAIL_HOST_PASSWORD=1234
+#EMAIL_HOST_USER=abc
+#EMAIL_PORT=123
+#EMAIL_USE_TLS=False
 
+ME_VIRTUALENV_ACTIVATE_THIS_PATH="/opt/virtual_env/flashcards/bin/activate_this.py"
 DJANGO_SETTINGS_MODULE="config.settings"

@@ -201,10 +201,12 @@ LOGIN_REDIRECT_URL = "cards:cardlist_index"
 # this is the name for the login page from flashcards/urls.py
 LOGIN_URL = 'accounts:login'
 
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = env('EMAIL_BACKEND', 'django.core.mail.backends.dummy.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', '')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', '')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', '')
+EMAIL_PORT = env('EMAIL_PORT', '')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS', False)
 
 # needed for python social auth
 AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS + [
