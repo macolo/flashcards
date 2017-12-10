@@ -2,7 +2,7 @@
 
 import logging
 from django.shortcuts import render
-from social.backends.utils import load_backends
+from social_core.backends.utils import load_backends
 
 from django.conf import settings
 from django.http import HttpResponseRedirect

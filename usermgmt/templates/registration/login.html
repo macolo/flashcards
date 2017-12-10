@@ -22,7 +22,7 @@
                 </span>
             </div>
 
-            <button class="big-button" type="submit">Login</button> <a href="{% url 'django.contrib.auth.views.password_reset' %}">or get a new password</a>
+            <button class="big-button" type="submit">Login</button> <a href="{% url 'password_reset' %}">or get a new password</a>
             <input type="hidden" name="next" value="{{ next }}" />
         </form>
 

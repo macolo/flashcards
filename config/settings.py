@@ -47,6 +47,10 @@ APP_OWNER = 'mercedes español'
 EMAIL_FROM = 'info@mercedes-espanol.ch'
 BASE_URL = os.environ['ME_FLASHCARDS_BASE_URL']
 
+# 'django.contrib.sites'  - setting
+SITE_ID = 1
+
+
 # Application definition
 
 INSTALLED_APPS = (
@@ -54,6 +58,8 @@ INSTALLED_APPS = (
     # http://stackoverflow.com/questions/447512/how-do-i-override-djangos-administrative-change-password-page
     'django.contrib.admin',
     'django.contrib.auth',
+    'django.contrib.sites',
+    'django.contrib.redirects',
     'social.apps.django_app.default',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -66,19 +72,20 @@ INSTALLED_APPS = (
 if DEBUG:
     INSTALLED_APPS += (
         'django_extensions',
-        'debug_toolbar',
     )
 
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
 ]
 
 
@@ -195,14 +202,15 @@ LOGIN_REDIRECT_URL = "cards:cardlist_index"
 LOGIN_URL = 'accounts:login'
 
 if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.dummy.EmailBackend'
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # needed for python social auth
 AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS + [
-    'social.backends.google.GoogleOAuth2',
-    'social.backends.facebook.FacebookOAuth2',
+    # psa
+    'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
 ]
 
 
@@ -234,7 +242,7 @@ TEMPLATES = [
 
 
 # needed for python social auth
-SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
+SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['first_name', 'email']
 
 # needed for python social auth
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = require_env('ME_FLASHCARDS_SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
@@ -249,6 +257,9 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_REQUEST_TOKEN_EXTRA_ARGUMENTS = {'access_type': 'offli
 SOCIAL_AUTH_FACEBOOK_KEY = require_env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_KEY')
 SOCIAL_AUTH_FACEBOOK_SECRET = require_env('ME_FLASHCARDS_SOCIAL_AUTH_FB_OAUTH2_SECRET')
 SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id, name, email, age_range'
+}
 
 # unique e-mail addresses:
 # http://stackoverflow.com/questions/19273904/how-to-have-unique-emails-with-python-social-auth
@@ -312,8 +323,10 @@ LOGIN_ERROR_URL = 'accounts:login'
 
 # needed for python social auth
 
-MIDDLEWARE_CLASSES += [
-    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware',
+# Make PSA render its exceptions instead of throwing them
+# DEBUG needs to be off for this to work
+MIDDLEWARE += [
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 COMPRESS_ENABLED = not DEBUG

@@ -1,7 +1,7 @@
 psycopg2
 django-extensions
 django_compressor
-django==1.9.6
+django<2
 django-debug-toolbar
-python-social-auth==0.2.19
+social-auth-app-django
 django-dotenv

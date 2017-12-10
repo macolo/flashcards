@@ -1,8 +1,8 @@
 from config import settings
-from social.backends.utils import load_backends
+from social_core.backends.utils import load_backends
 import re
 from django import template
-from social.backends.oauth import OAuthAuth
+from social_core.backends.oauth import OAuthAuth
 
 
 register = template.Library()

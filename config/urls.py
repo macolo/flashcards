@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 from django.contrib.auth.views import logout_then_login, password_change, password_change_done, password_reset, \
@@ -9,7 +9,7 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(pattern_name='cards:cardlist_index')),
     url(r'^cardlists/', include('flashcards.urls', namespace='cards')),
     url(r'^admin/', include(admin.site.urls)),
-    url('', include('social.apps.django_app.urls', namespace='social')),
+    url('', include('social_django.urls', namespace='social')),
     url(r'^accounts/', include('usermgmt.urls', namespace='accounts')),
-    url(r'^auth/', include('usermgmt.urls_auth')),
+    url(r'^', include('django.contrib.auth.urls')),
 ]
