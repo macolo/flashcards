@@ -30,17 +30,21 @@ def require_env(name):
         raise ImproperlyConfigured('Missing {} env variable'.format(name))
     return value
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = require_env('ME_FLASHCARDS_SECRET_KEY')
+SECRET_KEY = require_env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('ME_DEBUG', 'False').lower() in true_values
+DEBUG = env('DJANGO_DEBUG', 'True').lower() in true_values
 
-
-ALLOWED_HOSTS = ['flashcards.typodrive.com', 'www.mercedes-espanol.ch', "127.0.0.1", "localhost"]
+# this env is set from the deploy script
+if env('DJANGO_ALLOWED_HOSTS_STRING', False):
+    ALLOWED_HOSTS = str(env('DJANGO_ALLOWED_HOSTS_STRING')).strip('"').split()
+else:
+    ALLOWED_HOSTS = ["127.0.0.1", "0.0.0.0", 'localhost']
 
 APP_NAME = 'flashCards'
 APP_OWNER = 'mercedes español'
@@ -74,7 +78,6 @@ if DEBUG:
         'django_extensions',
     )
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -107,11 +110,9 @@ DEBUG_TOOLBAR_CONFIG = {
     'SHOW_TEMPLATE_CONTEXT': True,
 }
 
-
 ROOT_URLCONF = 'config.urls'
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -146,7 +147,6 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
@@ -170,8 +170,8 @@ LOGGING = {
             'class': 'logging.NullHandler',
         },
         'logfile': {
-            'level':'WARNING',
-            'class':'logging.handlers.RotatingFileHandler',
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
             'filename': BASE_DIR + "/logfile.log",
             'maxBytes': 50000,
             'backupCount': 2,
@@ -215,7 +215,6 @@ AUTHENTICATION_BACKENDS = settings.AUTHENTICATION_BACKENDS + [
     'social_core.backends.facebook.FacebookOAuth2',
 ]
 
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -241,7 +240,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 # needed for python social auth
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['first_name', 'email']
@@ -311,14 +309,12 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.user.user_details'
 )
 
-
 SOCIAL_AUTH_USERNAME_IS_FULL_EMAIL = True
 
 # http://psa.matiasaguirre.net/docs/configuration/settings.html#miscellaneous-settings
 # The user_details pipeline processor will set certain fields on user objects, such as email.
 # Set this to a list of fields you only want to set for newly created users and avoid updating on further logins.
 SOCIAL_AUTH_PROTECTED_USER_FIELDS = ['email', ]
-
 
 # Make PSA render its exceptions instead of throwing them
 LOGIN_ERROR_URL = 'accounts:login'
