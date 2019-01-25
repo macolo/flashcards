@@ -10,6 +10,11 @@ from flashcards.models import CardList, Card, CardListGroup, CardListUser, Share
 class CardAdmin(admin.ModelAdmin):
     list_display = ('card_question', 'card_answer', 'created_date')
 
+    search_fields = (
+        'card_question',
+        'card_answer',
+    )
+
 admin.site.register(Card, CardAdmin)
 
 
@@ -48,6 +53,14 @@ class CardListAdmin(admin.ModelAdmin):
     )
     inlines = (CardListAdminUserInline, CardListAdminGroupInline)
     list_display = ('cardlist_name', 'owner')
+
+    search_fields = (
+        'cardlist_name',
+    )
+
+    list_filter = (
+        'users',
+    )
 
 admin.site.register(CardList, CardListAdmin)
 
