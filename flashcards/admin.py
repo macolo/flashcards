@@ -42,6 +42,7 @@ class CardListUserAdmin(admin.ModelAdmin):
         'cardlist__cardlist_name',
         'users__first_name',
         'users__last_name',
+        'users__username',
     )
 
     list_filter = (
