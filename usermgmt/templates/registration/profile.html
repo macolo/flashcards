@@ -15,7 +15,7 @@
         {% if password_set %}
             <a class="big-button" href="{% url 'password_change' %}">Change your password</a>
         {% else %}
-            <a class="big-button" href="{% url 'password_set' %}">Set a password</a>
+            <a class="big-button" href="{% url 'accounts:password_set' %}">Set a password</a>
         {% endif %}
 
         {% include 'registration/oauth_buttons.html' %}

@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('mode', models.CharField(default=b'r', max_length=4, choices=[(b'r', b'Read'), (b'cr', b'Read, Create'), (b'crud', b'Full')])),
-                ('cardlist', models.ForeignKey(to='flashcards.CardList')),
-                ('groups', models.ForeignKey(to='auth.Group')),
+                ('cardlist', models.ForeignKey(to='flashcards.CardList', on_delete=models.PROTECT)),
+                ('groups', models.ForeignKey(to='auth.Group', on_delete=models.PROTECT)),
             ],
             options={
             },
@@ -31,8 +31,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('mode', models.CharField(default=b'r', max_length=4, choices=[(b'r', b'Read'), (b'cr', b'Read, Create'), (b'crud', b'Full')])),
-                ('cardlist', models.ForeignKey(to='flashcards.CardList')),
-                ('users', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('cardlist', models.ForeignKey(to='flashcards.CardList', on_delete=models.PROTECT)),
+                ('users', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT)),
             ],
             options={
             },

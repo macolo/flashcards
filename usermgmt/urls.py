@@ -1,6 +1,5 @@
-from django.conf.urls import url
-
-from django.contrib.auth.views import login
+from django.conf.urls import url, include
+from django.urls import path
 from usermgmt import views
 from django.contrib.auth.views import logout_then_login
 
@@ -8,8 +7,11 @@ from django.contrib.auth.views import logout_then_login
 # due to django does not accept namespaces in a redirect in django.contrib.auth.views.password_change
 # please see urls.py of the site package
 
+app_name = 'accounts'
+
 # /accounts/...
 urlpatterns = [
+    path('accounts/', include('django.contrib.auth.urls')),
     url(r'^logout/$', logout_then_login, name='logout'),
     url(r'^login/$', views.login, name='login'),
     url(r'^profile/$', views.profile, name='profile'),

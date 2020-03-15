@@ -13,7 +13,7 @@ def generate_random_hash():
 # This stores the hashes for email validation
 class UserValidationCode(models.Model):
     created_date = models.DateTimeField('date published', auto_now_add=True)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
     # The hash is unique and auto-generated for an existing user
     hash = models.CharField(max_length=200, blank=True, default=generate_random_hash, editable=False, unique=True)
 

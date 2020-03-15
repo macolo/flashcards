@@ -13,3 +13,4 @@
 
 * Console: `python manage.py shell_plus`
 * Edit deployment script: `joe /root/.bash_profile`
+* `pip-compile requirements.in > requirements.txt`

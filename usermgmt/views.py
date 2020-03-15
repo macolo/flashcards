@@ -21,7 +21,7 @@ from usermgmt import signup_form
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import logout
-from django.contrib.auth.views import login as django_login
+from django.contrib.auth.views import LoginView
 
 # Create your views here.
 
@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 def login(request):
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         if request.GET.get('next'):
             return redirect(request.GET.get('next'))
         else:
@@ -41,7 +41,8 @@ def login(request):
         message = "Welcome! You must sign in at this point and will then be redirected to the requested page."
         messages.add_message(request, messages.SUCCESS, message)
         logger.debug(message)
-    return django_login(request)
+
+    return LoginView.as_view()(request)
 
 
 @login_required
@@ -60,7 +61,7 @@ def signup(request):
         messages.add_message(request, messages.SUCCESS, message)
         logger.debug(message)
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         # we wanna log the person out first
         logout(request)
 
@@ -123,7 +124,7 @@ def send_validation_mail(user, next_url):
 
 
 def validate_email(request, code):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         # we wanna log the person out first
         logout(request)
         request.session.flush()
@@ -142,7 +143,7 @@ def validate_email(request, code):
         message = "Welcome to " + settings.APP_NAME + "!"
         messages.add_message(request, messages.SUCCESS, message)
         logger.debug('Validation succeeded - logged in ' + user.email + " - is_authenticated: " + str(
-            request.user.is_authenticated()))
+            request.user.is_authenticated))
         # the user will get next urls in the e-mail link if they came through a deep url (like stack sharing).
         if(request.GET.get('next')):
             return redirect(request.GET.get('next'))

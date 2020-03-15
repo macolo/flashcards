@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='cardlist',
             name='owner',
-            field=models.ForeignKey(related_name='owner', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(related_name='owner', to=settings.AUTH_USER_MODEL, on_delete=models.PROTECT),
             preserve_default=True,
         ),
     ]

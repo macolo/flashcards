@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('secret', models.CharField(default=flashcards.models.generate_random_hash, unique=True, max_length=200)),
                 ('created_date', models.DateTimeField(auto_now_add=True, verbose_name=b'date published')),
-                ('cardlist', models.ForeignKey(to='flashcards.CardList')),
+                ('cardlist', models.ForeignKey(to='flashcards.CardList', on_delete=models.PROTECT)),
             ],
             options={
             },

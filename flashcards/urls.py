@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from flashcards import views
 
+app_name = 'flashcards'
+
 # /cardlists/...
 urlpatterns = [
     url(r'^$', views.cardlist_index, name='cardlist_index'),

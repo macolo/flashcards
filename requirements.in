@@ -1,0 +1,8 @@
+psycopg2
+django-extensions
+django_compressor
+django
+django-debug-toolbar
+social-auth-app-django
+django-dotenv
+pip-tools

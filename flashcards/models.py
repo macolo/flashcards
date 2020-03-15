@@ -19,7 +19,7 @@ class CardList(models.Model):
     # related_name is needed because otherwise this clashes with the m2m from users below
     users = models.ManyToManyField(User, through="CardListUser")
     groups = models.ManyToManyField(Group, through="CardListGroup")
-    owner = models.ForeignKey(User, related_name="owner")
+    owner = models.ForeignKey(User, related_name="owner", on_delete=models.PROTECT)
     created_date = models.DateTimeField('date published', auto_now_add=True)
     cards = models.ManyToManyField(Card, related_name="cards", blank=True)
 
@@ -30,8 +30,8 @@ class CardList(models.Model):
 
 class CardListUser(models.Model):
     MODES = (('r', 'Read'), ('cr', 'Read, Create'), ('crud', 'Full'))
-    cardlist = models.ForeignKey(CardList)
-    users = models.ForeignKey(User)
+    cardlist = models.ForeignKey(CardList, on_delete=models.PROTECT)
+    users = models.ForeignKey(User, on_delete=models.PROTECT)
     mode = models.CharField(max_length=4, default='r', choices=MODES)
 
     def __str__(self):
@@ -52,8 +52,8 @@ class CardListUser(models.Model):
 class CardListGroup(models.Model):
 
     MODES = (('r', 'read'), ('cr', 'create and read'), ('crud', 'create, read, update and delete'))
-    cardlist = models.ForeignKey(CardList)
-    groups = models.ForeignKey(Group)
+    cardlist = models.ForeignKey(CardList, on_delete=models.PROTECT)
+    groups = models.ForeignKey(Group, on_delete=models.PROTECT)
     mode = models.CharField(max_length=4, default='r', choices=MODES)
 
     def __str__(self):
@@ -76,7 +76,7 @@ def generate_random_hash():
 
 
 class ShareCardList(models.Model):
-    cardlist = models.ForeignKey(CardList)
+    cardlist = models.ForeignKey(CardList, on_delete=models.PROTECT)
     secret = models.CharField(max_length=200,default=generate_random_hash,unique=True)
     created_date = models.DateTimeField('date published', auto_now_add=True)
 
